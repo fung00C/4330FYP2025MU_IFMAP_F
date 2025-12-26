@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import './styles/App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './home';
+import Bookmark from './bookmark';
+import User from './user';
 
-function App() {
+/*function App() {
   // State to hold the prediction result, loading status, and error messages
   const [prediction, setPrediction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,12 +58,12 @@ function App() {
         <h1>Financial AI Model</h1>
         <p>Click the button to get a prediction from the model.</p>
         
-        {/* Button to trigger the prediction */}
+        
         <button onClick={handlePredict} disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Get Prediction'}
         </button>
 
-        {/* Display area for the prediction result or error */}
+        
         <div className="result-container">
           {prediction !== null && (
             <h2>Prediction Result: {prediction.toFixed(8)}</h2>
@@ -68,6 +72,18 @@ function App() {
         </div>
       </header>
     </div>
+  );
+}*/
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/bookmark" element={<Bookmark />} />
+        <Route path="/user" element={<User />} />
+      </Routes>
+    </Router>
   );
 }
 
