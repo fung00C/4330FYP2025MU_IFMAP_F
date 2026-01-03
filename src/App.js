@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './styles/App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './home';
-import Bookmark from './bookmark';
-import User from './user';
+import Home from './pages/home';
+import Bookmark from './pages/bookmark';
+import User from './pages/user';
+import Detail from './pages/detail';
 
 /*function App() {
   // State to hold the prediction result, loading status, and error messages
@@ -82,6 +83,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/bookmark" element={<Bookmark />} />
         <Route path="/user" element={<User />} />
+        <Route path="/detail/:symbol" element={<Detail />} />
       </Routes>
     </Router>
   );
