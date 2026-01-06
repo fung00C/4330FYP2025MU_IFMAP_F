@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import './styles/App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Home from './pages/home';
 import Bookmark from './pages/bookmark';
 import User from './pages/user';
 import Detail from './pages/detail';
+import Index from './pages/index';
+import Ranklist from './pages/ranklist';
+import Navbar from './components/Navbar';
+
+function ConditionalNavbar() {
+  const location = useLocation();
+  const showNavbar = ['/', '/index', '/ranklist'].includes(location.pathname);
+  return showNavbar ? <Navbar /> : null;
+}
 
 /*function App() {
   // State to hold the prediction result, loading status, and error messages
@@ -79,11 +88,14 @@ import Detail from './pages/detail';
 function App() {
   return (
     <Router>
+      <ConditionalNavbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/bookmark" element={<Bookmark />} />
         <Route path="/user" element={<User />} />
         <Route path="/detail/:symbol" element={<Detail />} />
+        <Route path="/index" element={<Index />} />
+        <Route path="/ranklist" element={<Ranklist />} />
       </Routes>
     </Router>
   );

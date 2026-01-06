@@ -62,7 +62,8 @@ function Detail() {
             {loading && <div>Loading...</div>}
             {!loading && data && data.data && (
                 <>
-                    <div style={{marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #ddd'}}>
+                    <div style={{borderTop:'2px solid #ddd'}}>
+                        <h2>Stock Information</h2>
                         <strong>Exchange:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Exchange || 'N/A') : 'N/A'}<br/>
                         <strong>Shortname:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Shortname || 'N/A') : 'N/A'}<br/>
                         <strong>Longname:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Longname || 'N/A') : 'N/A'}<br/>

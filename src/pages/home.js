@@ -87,21 +87,27 @@ function Home() {
     }
 
     const getSymbolsForSelection = () => {
+        let out = [];
         if (!selectedSector) {
-            if (!selectedIndustry) return symbols; // All sectors & industries
-            // collect symbols across all sectors for the selected industry
-            let out = [];
-            Object.values(sectorMap).forEach(indObj => {
-                if (indObj && indObj[selectedIndustry]) out.push(...indObj[selectedIndustry]);
-            });
-            return out;
+            if (!selectedIndustry) out = symbols.slice(); // All sectors & industries
+            else {
+                // collect symbols across all sectors for the selected industry
+                Object.values(sectorMap).forEach(indObj => {
+                    if (indObj && indObj[selectedIndustry]) out.push(...indObj[selectedIndustry]);
+                });
+            }
+        } else {
+            const sectorObj = sectorMap[selectedSector] || {};
+            if (!selectedIndustry) {
+                // flatten all industries under sector
+                out = Object.values(sectorObj).flat();
+            } else {
+                out = sectorObj[selectedIndustry] || [];
+            }
         }
-        const sectorObj = sectorMap[selectedSector] || {};
-        if (!selectedIndustry) {
-            // flatten all industries under sector
-            return Object.values(sectorObj).flat();
-        }
-        return sectorObj[selectedIndustry] || [];
+
+        // dedupe and sort alphabetically
+        return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
     }
 
     function bookmarkClick() {
@@ -147,8 +153,7 @@ function Home() {
     return (
         <div>
             <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
-                <button className='round-button' onClick={userClick} img src={myImage}>
-                </button>
+                <button className='round-button' onClick={userClick} img src={myImage}>user</button>
                 <input type="text" className='searchbar'/>
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
             </div>
