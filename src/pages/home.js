@@ -9,17 +9,18 @@ function Home() {
     const [rawData, setRawData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [searchTerm, setSearchTerm] = useState('');
+
     const [sectorMap, setSectorMap] = useState({});
     const [sectors, setSectors] = useState([]);
     const [industries, setIndustries] = useState([]);
-    const [selectedSector, setSelectedSector] = useState(''); // empty = All
-    const [selectedIndustry, setSelectedIndustry] = useState(''); // empty = All
-    const [symbolInfo, setSymbolInfo] = useState({}); // { SYMBOL: { sector, industry } }
+    const [selectedSector, setSelectedSector] = useState('');
+    const [selectedIndustry, setSelectedIndustry] = useState(''); 
+    const [symbolInfo, setSymbolInfo] = useState({}); 
 
-    const getSymbol = (item) => {
-        if (!item && item !== 0) return '';
-        if (typeof item === 'string') return item;
-        return item.symbol || item.ticker || item.name || JSON.stringify(item);
+    function handleSearchChange(event) {
+        let input = event.target.value.toUpperCase();
+        setSearchTerm(input);
     }
 
     const extractSymbols = (payload) => {
@@ -88,8 +89,11 @@ function Home() {
 
     const getSymbolsForSelection = () => {
         let out = [];
+
         if (!selectedSector) {
-            if (!selectedIndustry) out = symbols.slice(); // All sectors & industries
+            if (!selectedIndustry) {
+                out = symbols.slice();
+            } // All sectors & industries
             else {
                 // collect symbols across all sectors for the selected industry
                 Object.values(sectorMap).forEach(indObj => {
@@ -106,20 +110,12 @@ function Home() {
             }
         }
 
+        if (searchTerm) {
+            out = out.filter(s => s.includes(searchTerm));
+        } // filter symbols include input in search bar
+
         // dedupe and sort alphabetically
         return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
-    }
-
-    function bookmarkClick() {
-        navigate("/bookmark")
-    }
-
-    function userClick() {
-        navigate("/user")
-    }
-
-    function symbolClick(symbol) {
-        navigate(`/detail/${symbol}`)
     }
 
     useEffect(() => {
@@ -150,14 +146,27 @@ function Home() {
             .finally(() => setLoading(false));
     }, []);
 
+    
+    function bookmarkClick() {
+        navigate("/bookmark")
+    }
+
+    function userClick() {
+        navigate("/user")
+    }
+
+    function symbolClick(symbol) {
+        navigate(`/detail/${symbol}`)
+    }
+
     return (
         <div>
             <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
                 <button className='round-button' onClick={userClick} img src={myImage}>user</button>
-                <input type="text" className='searchbar'/>
+                <input type="text" className='searchbar' value={searchTerm} onChange={handleSearchChange}/>
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
             </div>
-
+            
             <div style={{display:'flex', gap:'12px', marginBottom:'12px'}}>
                 <div style={{display:'inline-block'}}>
                     <label style={{marginRight:'6px'}}>Sector:</label>
@@ -169,16 +178,16 @@ function Home() {
                     </select>
                 </div>
 
-                    <div style={{display:'inline-block'}}>
-                        <label style={{marginRight:'6px'}}>Industry:</label>
-                        <select value={selectedIndustry} onChange={e => setSelectedIndustry(e.target.value)}>
-                            <option value=''>All</option>
-                            {industries.map((ind) => (
-                                <option key={ind} value={ind}>{ind}</option>
-                            ))}
-                        </select>
-                    </div>
+                <div style={{display:'inline-block'}}>
+                    <label style={{marginRight:'6px'}}>Industry:</label>
+                    <select value={selectedIndustry} onChange={e => setSelectedIndustry(e.target.value)}>
+                        <option value=''>All</option>
+                        {industries.map((ind) => (
+                            <option key={ind} value={ind}>{ind}</option>
+                        ))}
+                    </select>
                 </div>
+            </div>
 
             <div className="container">
                 {loading && <div className='card'>Loading...</div>}
@@ -186,8 +195,18 @@ function Home() {
                     <div className='card'>No stocks available</div>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
-                    <div className='card' key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
-                        {getSymbol(s)}
+                    <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
+                        <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
+                        <div style={{display: 'flex', alignItems:'center', width:'100%'}}>
+                            <div style={{flex:'1'}}>
+                                current price<br />
+                                
+                            </div>
+                            <div style={{flex:'1'}}>
+                                recommendation<br />
+                                
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

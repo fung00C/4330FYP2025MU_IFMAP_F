@@ -2,14 +2,43 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Brush } from 'recharts';
 
 function Index() {
+    const [currentPrice, setCurrentPrice] = useState(null);
+    const [recommendation, setRecommendation] = useState(null);
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [priceData, setPriceData] = useState(null);
-        const [priceLoading, setPriceLoading] = useState(true);
+    const [priceLoading, setPriceLoading] = useState(true);
     
-        const getTodayYYYYMMDD = () => new Date().toISOString().split('T')[0];
-        const getLastYearYYYYMMDD = () => new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
+    const getTodayYYYYMMDD = () => new Date().toISOString().split('T')[0];
+    const getLastYearYYYYMMDD = () => new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
 
+    useEffect(() => {
+            setLoading(true);
+            fetch(`http://localhost:8000/prices/index/query-several?symbols=%5EGSPC&columns=close&limit=1`)
+                .then(res => res.json())
+                .then(data => {
+                    setCurrentPrice(data);
+                })
+                .catch(err => {
+                    console.error('Failed fetching current price', err);
+                    setCurrentPrice(null);
+                })
+                .finally(() => setLoading(false));
+        }, []);
+
+    useEffect(() => {
+            setLoading(true);
+            fetch(`http://localhost:8000/recommendation/index?symbol=%5EGSPC`)
+                .then(res => res.json())
+                .then(data => {
+                    setRecommendation(data);
+                })
+                .catch(err => {
+                    console.error('Failed fetching current price', err);
+                    setRecommendation(null);
+                })
+                .finally(() => setLoading(false));
+        }, []);
 
     useEffect(() => {
             setLoading(true);
@@ -58,7 +87,22 @@ function Index() {
     return (
         <div>
             <h1>Index Page</h1>
-            {loading && <div>Loading...</div>}
+            <div style={{display:'flex', borderTop:'2px solid #ddd'}}>
+                {loading && <div>Loading...</div>}
+                {!loading && currentPrice && currentPrice.data && (
+                    <div style={{flex:'1'}}>
+                        <strong>Current price:</strong> {Array.isArray(currentPrice.data) && currentPrice.data.length > 0 ? (currentPrice.data[0].close || 'N/A') : 'N/A'}<br/>
+                    </div>   
+                )}
+                {loading && <div>Loading...</div>}
+                {!loading && recommendation && recommendation.data && (
+                    <div style={{flex:'1'}}>
+                        <strong>Recommendation:</strong> {Array.isArray(recommendation.data) && recommendation.data.length > 0 ? (recommendation.data[0].recommendation || 'N/A') : 'N/A'}<br/>
+                    </div>
+                )}
+            </div>
+            
+
             {!loading && data && data.data && (
                 <div style={{borderTop:'2px solid #ddd'}}>
                     <h2>Stock Information</h2>
