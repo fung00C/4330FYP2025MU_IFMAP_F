@@ -1,0 +1,40 @@
+button {
+    padding: 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    border: solid black;
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 20px;
+}
+
+.card {
+    background-color: lightgray;
+    height: 150px;
+    border-radius: 10px;
+}
+
+.round-button {
+  width: 60px; /* Set the width of the button */
+  height: 60px; /* Set the height of the button */
+  border: none; /* Remove default button border */
+  border-radius: 50%; /* Make the button round */
+  background-color: #007bff; /* Background color */
+  cursor: pointer; /* Change cursor to pointer */
+  overflow: hidden; /* Hide overflow */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  outline: none; /* Remove outline */
+}
+
+.round-button-image {
+  width: 80%; /* Adjust image size */
+  height: auto; /* Keep aspect ratio */
+}
