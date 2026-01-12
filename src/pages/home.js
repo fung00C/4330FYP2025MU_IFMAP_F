@@ -8,7 +8,7 @@ function Home() {
     const [symbols, setSymbols] = useState([]);
     const [rawData, setRawData] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [prices, setPrices] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
 
     const [sectorMap, setSectorMap] = useState({});
@@ -17,6 +17,8 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
+
+    
 
     function handleSearchChange(event) {
         let input = event.target.value.toUpperCase();
@@ -146,6 +148,30 @@ function Home() {
             .finally(() => setLoading(false));
     }, []);
 
+    useEffect(() => {
+        // 如果沒有 symbol，就不執行
+        if (symbols.length === 0) return;
+
+        // TODO: change to handle one by one - 實現逐個抓取
+        symbols.forEach(symbol => {
+            // 針對每一個 symbol 單獨發送請求
+            // 注意：這裡因為只查一支股票，保留 limit=1 是合理的（抓最新一筆）
+            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        const price = data.data[0].close;
+                        // 使用 functional update (prev => ...) 
+                        // 確保不會覆蓋掉其他非同步請求已經寫入的價格
+                        setPrices(prevPrices => ({
+                            ...prevPrices,
+                            [symbol]: price
+                        }));
+                    }
+                })
+                .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
+        });
+    }, [symbols]);
     
     function bookmarkClick() {
         navigate("/bookmark")
@@ -162,7 +188,7 @@ function Home() {
     return (
         <div>
             <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
-                <button className='round-button' onClick={userClick} img src={myImage}>user</button>
+                <button className='round-button' onClick={userClick}>user</button>
                 <input type="text" className='searchbar' value={searchTerm} onChange={handleSearchChange}/>
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
             </div>
@@ -189,7 +215,7 @@ function Home() {
                 </div>
             </div>
 
-            <div className="container">
+            <div className="Container">
                 {loading && <div className='card'>Loading...</div>}
                 {!loading && getSymbolsForSelection().length === 0 && (
                     <div className='card'>No stocks available</div>
@@ -197,13 +223,13 @@ function Home() {
                 {!loading && getSymbolsForSelection().map((s, idx) => (
                     <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
                         <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
-                        <div style={{display: 'flex', alignItems:'center', width:'100%'}}>
+                        <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
                             <div style={{flex:'1'}}>
-                                current price<br />
-                                
+                                current price<br/>
+                                {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
                             </div>
                             <div style={{flex:'1'}}>
-                                recommendation<br />
+                                recommendation<br/>
                                 
                             </div>
                         </div>
