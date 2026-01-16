@@ -221,7 +221,7 @@ function Home() {
 
     return (
         <div>
-            <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
+            <div className="headerContainer">
                 <button className='round-button' onClick={userClick}>user</button>
                 <input type="text" className='searchbar' value={searchTerm} onChange={handleSearchChange}/>
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
@@ -249,10 +249,11 @@ function Home() {
                 </div>
             </div>
 
-            <div className="Container">
+            <div className="card-container">
                 {loading && <div className='card'>Loading...</div>}
                 {!loading && getSymbolsForSelection().length === 0 && (
-                    <div className='card'>No stocks available</div>
+                    
+                    <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>No stocks available</p>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
                     <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>

@@ -156,7 +156,7 @@ function Ranklist() {
 
   return (
     <>
-      <h1>Ranklist Page</h1>
+      <h1>Rank List Page</h1>
       <div style={{width:'90%', margin:'auto'}}>
         <div className="button_container">
         <button className="list_button"
