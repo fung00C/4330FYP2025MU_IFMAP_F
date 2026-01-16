@@ -1,0 +1,14 @@
+
+
+.button_container {
+    display: flex;
+    margin:'0 auto';
+}
+
+.list_button {
+    flex: 1;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    border-bottom: 3px solid transparent;
+}
