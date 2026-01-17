@@ -12,6 +12,7 @@ function Home() {
     const [searchTerm, setSearchTerm] = useState('');
     const [longName, setLongName] = useState({});
     const [shortName, setShortName] = useState({});
+    const [IncreaseDecrease, setIncreaseDecrease] = useState({});
 
     const [sectorMap, setSectorMap] = useState({});
     const [sectors, setSectors] = useState([]);
@@ -27,7 +28,7 @@ function Home() {
         // TODO: change to handle one by one - 實現逐個抓取
         symbols.forEach(symbol => {
             // 針對每一個 symbol 單獨發送請求
-            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=1`)
+            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=2`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.data && Array.isArray(data.data) && data.data.length > 0) {
@@ -38,7 +39,19 @@ function Home() {
                             ...prevPrices,
                             [symbol]: price
                         }));
+                        if (data.data[0].close > data.data[1].close) {
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'increased'
+                            }));
+                        } else if (data.data[0].close < data.data[1].close) {
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'decreased'
+                            }));
+                        }
                     }
+
                 })
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
@@ -227,7 +240,7 @@ function Home() {
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
             </div>
             
-            <div style={{display:'flex', gap:'12px', marginBottom:'12px'}}>
+            <div style={{display:'flex', gap:'12px', marginBottom:'12px', width:'100%', justifyContent:'center'}}>
                 <div style={{display:'inline-block'}}>
                     <label style={{marginRight:'6px'}}>Sector:</label>
                     <select value={selectedSector} onChange={e => { const v = e.target.value; setSelectedSector(v); setSelectedIndustry(''); setIndustries(v && sectorMap[v] ? Object.keys(sectorMap[v]) : getAllIndustries(sectorMap)); }}>
@@ -261,6 +274,8 @@ function Home() {
                         <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
                             <div style={{flex:'1'}}>
                                 current price<br/>
+                                {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
+                                {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
                                 {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
                             </div>
                             <div style={{flex:'1'}}>
