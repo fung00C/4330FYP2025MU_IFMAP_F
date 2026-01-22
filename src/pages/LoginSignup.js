@@ -3,11 +3,13 @@ import '../styles/LoginSignup.css'
 import {useNavigate} from 'react-router-dom';
 import email_icon from '../image/email.png'
 import password_icon from '../image/password.png'
+import { uselogin } from '../logincheck';
 const LoginSignup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = uselogin();
 function Clicksignup(){
   navigate("/signup");
 }
@@ -22,6 +24,8 @@ async function handleLogin() {
     const data = await response.json();
     if (response.ok) {
       setMessage(data.message);
+      login();
+      navigate("/");
     } else {
       setMessage(data.detail);
     }
