@@ -2,7 +2,7 @@ function Bookmark() {
     return (
         <body>
             <h1>bookmark page</h1>
-            <div class="container">
+            <div class="card-container">
                 <div class="card">card 1</div>
                 <div class="card">card 2</div>
                 <div class="card">card 3</div>

@@ -4,7 +4,7 @@ button {
     cursor: pointer;
 }
 
-.Container {
+.card-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
@@ -12,12 +12,16 @@ button {
     margin-left: 5%;
     margin-right: 5%;
     padding: 20px;
+    
+    position: relative;
 }
 
 .card {
     background-color: lightgray;
     height: 150px;
     border-radius: 10px;
+    padding-left: 3%;
+    padding-right: 3%;
 }
 
 .round-button {
@@ -37,4 +41,29 @@ button {
 .round-button-image {
   width: 80%; /* Adjust image size */
   height: auto; /* Keep aspect ratio */
+}
+
+.headerContainer {
+  display:flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 90%;
+  gap: 10px;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 12px;
+  margin-top: 12px;
+}
+
+.searchbar {
+  flex: 1;
+  padding: 10px;
+  padding-left: 20px;
+  font-size: 18px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  margin: auto;
+  height: 20px;
+  border-radius: 20px;
 }
