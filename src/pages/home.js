@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {use, useEffect, useState} from 'react';
 import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
@@ -11,6 +11,9 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const [prices, setPrices] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+    const [longName, setLongName] = useState({});
+    const [shortName, setShortName] = useState({});
+    const [IncreaseDecrease, setIncreaseDecrease] = useState({});
 
     const [sectorMap, setSectorMap] = useState({});
     const [sectors, setSectors] = useState([]);
@@ -20,10 +23,99 @@ function Home() {
     const [symbolInfo, setSymbolInfo] = useState({}); 
     const { islogin } = uselogin();
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+
+    useEffect(() => {
+        // 如果沒有 symbol，就不執行
+        if (symbols.length === 0) return;
+
+        // TODO: change to handle one by one - 實現逐個抓取
+        symbols.forEach(symbol => {
+            // 針對每一個 symbol 單獨發送請求
+            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=2`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        const price = data.data[0].close;
+                        // 使用 functional update (prev => ...) 
+                        // 確保不會覆蓋掉其他非同步請求已經寫入的價格
+                        setPrices(prevPrices => ({
+                            ...prevPrices,
+                            [symbol]: price
+                        }));
+                        if (data.data[0].close > data.data[1].close) {
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'increased'
+                            }));
+                        } else if (data.data[0].close < data.data[1].close) {
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'decreased'
+                            }));
+                        }
+                    }
+
+                })
+                .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
+        });
+    }, [symbols]);
+
+    useEffect(() => {
+        setLoading(true);
+        fetch('http://localhost:8000/category/stock')
+            .then(res => res.json())
+            .then(data => {
+                setRawData(data);
+                const found = extractSymbols(data);
+                // dedupe and keep order
+                const uniq = Array.from(new Set(found));
+                setSymbols(uniq);
+
+                const map = buildSectorMap(data);
+                setSectorMap(map);
+                const sectorNames = Object.keys(map);
+                setSectors(sectorNames);
+                // populate industries with all industries across sectors initially
+                setIndustries(getAllIndustries(map));
+                const info = buildSymbolInfo(map);
+                setSymbolInfo(info);
+            })
+            .catch(err => {
+                console.error('Failed fetching stocks', err);
+                setRawData(null);
+                setSymbols([]);
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
     
 
+    useEffect(() => {
+        // Fetch long and short names for symbols
+        if (symbols.length === 0) return;
+
+        symbols.forEach(symbol => {
+            fetch(`http://localhost:8000/detail/stock?symbol=${symbol}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        setLongName(prevNames => ({
+                            ...prevNames,
+                            [symbol]: data.data[0].Longname
+                        }));
+                    
+                        setShortName(prevNames => ({
+                            ...prevNames,
+                            [symbol]: data.data[0].Shortname
+                        }));
+                    }
+                })
+                .catch(err => console.error(`Failed fetching info for ${symbol}`, err));
+        });
+    }, [symbols]);
+
     function handleSearchChange(event) {
-        let input = event.target.value.toUpperCase();
+        let input = event.target.value;
         setSearchTerm(input);
     }
 
@@ -115,7 +207,14 @@ function Home() {
         }
 
         if (searchTerm) {
-            out = out.filter(s => s.includes(searchTerm));
+           // out = out.filter(s => s.includes(searchTerm.toUpperCase()));
+           const upperInput = searchTerm.toUpperCase();
+           out = out.filter(s => {
+               const longN = longName[s] ? longName[s].toUpperCase() : '';
+               const shortN = shortName[s] ? shortName[s].toUpperCase() : '';
+               return s.includes(upperInput) || longN.includes(upperInput) || shortN.includes(upperInput);
+           });
+            
         } // filter symbols include input in search bar
 
         // dedupe and sort alphabetically
@@ -252,13 +351,13 @@ function bookmarkClick() {
 
     return (
         <div>
-            <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
+            <div className="headerContainer">
                 <button className='round-button' onClick={userClick}>user</button>
                 <input type="text" className='searchbar' value={searchTerm} onChange={handleSearchChange}/>
                 <button className='round-button' onClick={bookmarkClick}>bookmark</button>
             </div>
             
-            <div style={{display:'flex', gap:'12px', marginBottom:'12px'}}>
+            <div style={{display:'flex', gap:'12px', marginBottom:'12px', width:'100%', justifyContent:'center'}}>
                 <div style={{display:'inline-block'}}>
                     <label style={{marginRight:'6px'}}>Sector:</label>
                     <select value={selectedSector} onChange={e => { const v = e.target.value; setSelectedSector(v); setSelectedIndustry(''); setIndustries(v && sectorMap[v] ? Object.keys(sectorMap[v]) : getAllIndustries(sectorMap)); }}>
@@ -280,10 +379,11 @@ function bookmarkClick() {
                 </div>
             </div>
 
-            <div className="Container">
+            <div className="card-container">
                 {loading && <div className='card'>Loading...</div>}
                 {!loading && getSymbolsForSelection().length === 0 && (
-                    <div className='card'>No stocks available</div>
+                    
+                    <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>No stocks available</p>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
                     <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
@@ -291,6 +391,8 @@ function bookmarkClick() {
                         <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
                             <div style={{flex:'1'}}>
                                 current price<br/>
+                                {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
+                                {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
                                 {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
                             </div>
                             <div style={{flex:'1'}}>
