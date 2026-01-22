@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
+import { uselogin } from '../logincheck';
 
 function Home() {
     const navigate = useNavigate();
@@ -17,7 +18,8 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
-
+    const { islogin } = uselogin();
+    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
     
 
     function handleSearchChange(event) {
@@ -172,9 +174,72 @@ function Home() {
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
     }, [symbols]);
-    
-    function bookmarkClick() {
-        navigate("/bookmark")
+    useEffect(() => {
+        const fetchBookmarks = async () => {
+            const response = await fetch('http://localhost:8000/bookmark/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const bookmarks = data.map(item => item.stock_symbol);
+                setBookmarkedSymbols(bookmarks);
+            }
+        };
+
+        const fetchSymbols = async () => {
+            setLoading(true);
+            const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
+            if (response.ok) {
+                const data = await response.json();
+                const foundSymbols = extractSymbols(data); // Ensure you define this function correctly
+                const uniqueSymbols = Array.from(new Set(foundSymbols));
+                setSymbols(uniqueSymbols);
+            }
+            setLoading(false);
+        };
+
+        fetchBookmarks();
+        fetchSymbols();
+    }, []);
+
+    const toggleBookmark = async (symbol) => {
+        const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
+        if (bookmarkedSymbols.includes(symbol)) {
+            // Remove bookmark
+            await fetch(`http://localhost:8000/bookmark/${symbol}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
+        } else {
+            // Add bookmark with email and stock data
+            await fetch('http://localhost:8000/bookmark/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    email: email,            // Include user's email
+                    stock_symbol: symbol 
+                }),
+            });
+            setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
+        }
+    };
+
+function bookmarkClick() {
+        if (!islogin) {
+            navigate("/login"); // Redirect to login if not authenticated
+        } else {
+            navigate("/bookmark"); // Redirect to bookmarks if authenticated
+        }
     }
 
     function userClick() {
@@ -233,6 +298,12 @@ function Home() {
                                 
                             </div>
                         </div>
+                        <button onClick={(e) => {
+                            e.stopPropagation(); // Prevents the event from bubbling up
+                            toggleBookmark(s);
+                        }}>
+                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        </button>
                     </div>
                 ))}
             </div>
