@@ -20,21 +20,7 @@ function ConditionalNavbar() {
 
 function App() {
   return (
-    <LoginProvider>
-    <Router>
-      <ConditionalNavbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/bookmark" element={<Bookmark />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/detail/:symbol" element={<Detail />} />
-        <Route path="/index" element={<Index />} />
-        <Route path="/ranklist" element={<Ranklist />} />
-        <Route path="/login" element={<LoginSignup />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
-    </Router>
-    </LoginProvider>
+    
     <LoginProvider>
       <Router>
         <ConditionalNavbar />
