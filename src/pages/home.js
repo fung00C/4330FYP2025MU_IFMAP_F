@@ -3,6 +3,7 @@ import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
 import { uselogin } from '../logincheck';
+import { uselogin } from '../logincheck';
 
 function Home() {
     const navigate = useNavigate();
@@ -22,25 +23,6 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
-    const { islogin } = uselogin();
-    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
-
-    useEffect(() => {
-        if (symbols.length === 0) return;
-        symbols.forEach(symbol => {
-            fetch(`http://localhost:8000/recommendation/stock?symbol=${symbol}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-                        setRecommendation(prev => ({
-                            ...prev,
-                            [symbol]: data.data[0].recommendation
-                        }));
-                    }
-                })
-                .catch(err => console.error(`Failed fetching recommendation for ${symbol}`, err));
-        });
-    },[symbols]);
 
     useEffect(() => {
         // 如果沒有 symbol，就不執行
