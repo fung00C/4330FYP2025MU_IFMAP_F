@@ -50,28 +50,28 @@ const buyData = [
       "Symbol": "BRK-B",
       "Type": "Financial Services",
       "Price": 125.0,
-      "Appreciation": 2.5
+      "Appreciation": 3.5
     },
     {
       "Rank": 8,
       "Symbol": "AVGO",
       "Type": "Technology",
       "Price": 88.0,
-      "Appreciation": -1.2
+      "Appreciation": 3.2
     },
     {
       "Rank": 9,
       "Symbol": "TSLA",
       "Type": "Consumer Cyclical",
       "Price": 66.0,
-      "Appreciation": -3.4
+      "Appreciation": 2.4
     },
     {
       "Rank": 10,
       "Symbol": "LLY",
       "Type": "Healthcare",
       "Price": 54.0,
-      "Appreciation": -4.6
+      "Appreciation": 1.6
     }
 ];
 
@@ -81,49 +81,49 @@ const sellData = [
       "Symbol": "LLY",
       "Type": "Healthcare",
       "Price": 54.0,
-      "Appreciation": -4.6
+      "Appreciation": 14.6
     },
     {
       "Rank": 2,
       "Symbol": "TSLA",
       "Type": "Consumer Cyclical",
       "Price": 66.0,
-      "Appreciation": -3.4
+      "Appreciation": 14.4
     },
     {
       "Rank": 3,
       "Symbol": "AVGO",
       "Type": "Technology",
       "Price": 88.0,
-      "Appreciation": -1.2
+      "Appreciation": 14.2
     },
     {
       "Rank": 4,
       "Symbol": "BRK-B",
       "Type": "Financial Services",
       "Price": 125.0,
-      "Appreciation": 2.5
+      "Appreciation": 13.5
     },
     {
       "Rank": 5,
       "Symbol": "GOOGL",
       "Type": "Communication Services",
       "Price": 141.0,
-      "Appreciation": 4.1
+      "Appreciation": 12.1
     },
     {
       "Rank": 6,
       "Symbol": "MSFT",
       "Type": "Technology",
       "Price": 168.0,
-      "Appreciation": 6.8
+      "Appreciation": 11.8
     },
     {
       "Rank": 7,
       "Symbol": "NVDA",
       "Type": "Technology",
       "Price": 182.0,
-      "Appreciation": 8.2
+      "Appreciation": 10.2
     },
     {
       "Rank": 8,
@@ -137,14 +137,14 @@ const sellData = [
       "Symbol": "AAPL",
       "Type": "Technology",
       "Price": 225.0,
-      "Appreciation": 12.5
+      "Appreciation": 8.5
     },
     {
       "Rank": 10,
       "Symbol": "AMZN",
       "Type": "Consumer Cyclical",
       "Price": 253.0,
-      "Appreciation": 15.3
+      "Appreciation": 7.3
     }
 ];
 

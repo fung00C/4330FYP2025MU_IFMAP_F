@@ -10,6 +10,7 @@ import Ranklist from './pages/ranklist';
 import LoginSignup from './pages/LoginSignup';  
 import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
+import { LoginProvider } from './logincheck';
 
 function ConditionalNavbar() {
   const location = useLocation();
@@ -19,19 +20,21 @@ function ConditionalNavbar() {
 
 function App() {
   return (
-    <Router>
-      <ConditionalNavbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/bookmark" element={<Bookmark />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/detail/:symbol" element={<Detail />} />
-        <Route path="/index" element={<Index />} />
-        <Route path="/ranklist" element={<Ranklist />} />
-        <Route path="/login" element={<LoginSignup />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
-    </Router>
+    <LoginProvider>
+      <Router>
+        <ConditionalNavbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/bookmark" element={<Bookmark />} />
+          <Route path="/user" element={<User />} />
+          <Route path="/detail/:symbol" element={<Detail />} />
+          <Route path="/index" element={<Index />} />
+          <Route path="/ranklist" element={<Ranklist />} />
+          <Route path="/login" element={<LoginSignup />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </Router>
+    </LoginProvider>
   );
 }
 

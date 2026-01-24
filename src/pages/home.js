@@ -2,6 +2,7 @@ import React, {use, useEffect, useState} from 'react';
 import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
+import { uselogin } from '../logincheck';
 
 function Home() {
     const navigate = useNavigate();
@@ -13,6 +14,7 @@ function Home() {
     const [longName, setLongName] = useState({});
     const [shortName, setShortName] = useState({});
     const [IncreaseDecrease, setIncreaseDecrease] = useState({});
+    const [recommendation, setRecommendation] = useState({});
 
     const [sectorMap, setSectorMap] = useState({});
     const [sectors, setSectors] = useState([]);
@@ -20,6 +22,25 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
+    const { islogin } = uselogin();
+    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+
+    useEffect(() => {
+        if (symbols.length === 0) return;
+        symbols.forEach(symbol => {
+            fetch(`http://localhost:8000/recommendation/stock?symbol=${symbol}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        setRecommendation(prev => ({
+                            ...prev,
+                            [symbol]: data.data[0].recommendation
+                        }));
+                    }
+                })
+                .catch(err => console.error(`Failed fetching recommendation for ${symbol}`, err));
+        });
+    },[symbols]);
 
     useEffect(() => {
         // 如果沒有 symbol，就不執行
@@ -218,10 +239,124 @@ function Home() {
         return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
     }
 
-    
-    
-    function bookmarkClick() {
-        navigate("/bookmark")
+    useEffect(() => {
+        setLoading(true);
+        fetch('http://localhost:8000/category/stock')
+            .then(res => res.json())
+            .then(data => {
+                setRawData(data);
+                const found = extractSymbols(data);
+                // dedupe and keep order
+                const uniq = Array.from(new Set(found));
+                setSymbols(uniq);
+
+                const map = buildSectorMap(data);
+                setSectorMap(map);
+                const sectorNames = Object.keys(map);
+                setSectors(sectorNames);
+                // populate industries with all industries across sectors initially
+                setIndustries(getAllIndustries(map));
+                const info = buildSymbolInfo(map);
+                setSymbolInfo(info);
+            })
+            .catch(err => {
+                console.error('Failed fetching stocks', err);
+                setRawData(null);
+                setSymbols([]);
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        // 如果沒有 symbol，就不執行
+        if (symbols.length === 0) return;
+
+        // TODO: change to handle one by one - 實現逐個抓取
+        symbols.forEach(symbol => {
+            // 針對每一個 symbol 單獨發送請求
+            // 注意：這裡因為只查一支股票，保留 limit=1 是合理的（抓最新一筆）
+            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        const price = data.data[0].close;
+                        // 使用 functional update (prev => ...) 
+                        // 確保不會覆蓋掉其他非同步請求已經寫入的價格
+                        setPrices(prevPrices => ({
+                            ...prevPrices,
+                            [symbol]: price
+                        }));
+                    }
+                })
+                .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
+        });
+    }, [symbols]);
+    useEffect(() => {
+        const fetchBookmarks = async () => {
+            const response = await fetch('http://localhost:8000/bookmark/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const bookmarks = data.map(item => item.stock_symbol);
+                setBookmarkedSymbols(bookmarks);
+            }
+        };
+
+        const fetchSymbols = async () => {
+            setLoading(true);
+            const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
+            if (response.ok) {
+                const data = await response.json();
+                const foundSymbols = extractSymbols(data); // Ensure you define this function correctly
+                const uniqueSymbols = Array.from(new Set(foundSymbols));
+                setSymbols(uniqueSymbols);
+            }
+            setLoading(false);
+        };
+
+        fetchBookmarks();
+        fetchSymbols();
+    }, []);
+
+    const toggleBookmark = async (symbol) => {
+        const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
+        if (bookmarkedSymbols.includes(symbol)) {
+            // Remove bookmark
+            await fetch(`http://localhost:8000/bookmark/${symbol}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
+        } else {
+            // Add bookmark with email and stock data
+            await fetch('http://localhost:8000/bookmark/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    email: email,            // Include user's email
+                    stock_symbol: symbol 
+                }),
+            });
+            setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
+        }
+    };
+
+function bookmarkClick() {
+        if (!islogin) {
+            navigate("/login"); // Redirect to login if not authenticated
+        } else {
+            navigate("/bookmark"); // Redirect to bookmarks if authenticated
+        }
     }
 
     function userClick() {
@@ -280,9 +415,15 @@ function Home() {
                             </div>
                             <div style={{flex:'1'}}>
                                 recommendation<br/>
-                                
+                                {recommendation[s] ? recommendation[s] : '-'}
                             </div>
                         </div>
+                        <button onClick={(e) => {
+                            e.stopPropagation(); // Prevents the event from bubbling up
+                            toggleBookmark(s);
+                        }}>
+                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        </button>
                     </div>
                 ))}
             </div>
