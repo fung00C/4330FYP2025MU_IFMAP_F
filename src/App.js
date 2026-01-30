@@ -21,6 +21,7 @@ function ConditionalNavbar() {
 
 function App() {
   return (
+    
     <LoginProvider>
     <Router>
       <ConditionalNavbar />
