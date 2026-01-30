@@ -9,6 +9,7 @@ import Index from './pages/index';
 import Ranklist from './pages/ranklist';
 import LoginSignup from './pages/LoginSignup';  
 import Signup from './pages/Signup';
+import Changepassword from './pages/changepassword';
 import Navbar from './components/Navbar';
 import { LoginProvider } from './logincheck';
 
@@ -20,6 +21,7 @@ function ConditionalNavbar() {
 
 function App() {
   return (
+    
     <LoginProvider>
     <Router>
       <ConditionalNavbar />
@@ -32,6 +34,7 @@ function App() {
         <Route path="/ranklist" element={<Ranklist />} />
         <Route path="/login" element={<LoginSignup />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/changepassword" element={<Changepassword/>}/>
       </Routes>
     </Router>
     </LoginProvider>

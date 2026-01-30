@@ -3,17 +3,18 @@ import '../styles/LoginSignup.css'
 import {useNavigate} from 'react-router-dom';
 import email_icon from '../image/email.png'
 import password_icon from '../image/password.png'
-import { uselogin } from '../logincheck';
+import { Uselogin } from '../logincheck';
 const LoginSignup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const { login } = uselogin();
+  const { login } = Uselogin();
 function Clicksignup(){
   navigate("/signup");
 }
 async function handleLogin() {
+  setMessage('');
     const response = await fetch('http://localhost:8000/login', { // Adjust according to your backend port
       method: 'POST',
       headers: {
@@ -22,13 +23,17 @@ async function handleLogin() {
       body: JSON.stringify({ email, password }),
     });
     const data = await response.json();
-    if (response.ok) {
-      setMessage(data.message);
-      login();
-      navigate("/");
-    } else {
-      setMessage(data.detail);
-    }
+ if (response.ok) {
+            // Store the access token in local storage
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('user_email', email);
+
+            setMessage('Login successful!');
+            login(); // Call the login function from Uselogin
+            navigate("/"); // Redirect to home page
+        } else {
+            setMessage(data.detail || 'Login failed. Please try again.'); // Provide a default message if none is provided
+        }
   }
 
   return (
@@ -47,7 +52,6 @@ async function handleLogin() {
                 <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
             </div>
         </div>
-        <div className="forgot-password">Lost Password <span>Click Here!</span></div>
       <div className="submit-container">
         <div className="submit" onClick={Clicksignup}>Sign Up</div>
         <div className="submit" onClick={handleLogin}>Login</div>

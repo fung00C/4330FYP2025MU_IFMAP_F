@@ -91,7 +91,7 @@ function Index() {
                 {loading && <div>Loading...</div>}
                 {!loading && currentPrice && currentPrice.data && (
                     <div style={{flex:'1'}}>
-                        <strong>Current price:</strong> {Array.isArray(currentPrice.data) && currentPrice.data.length > 0 ? (currentPrice.data[0].close || 'N/A') : 'N/A'}<br/>
+                        <strong>Last close price:</strong> {Array.isArray(currentPrice.data) && currentPrice.data.length > 0 ? (currentPrice.data[0].close.toFixed(2) || 'N/A') : 'N/A'}<br/>
                     </div>   
                 )}
                 {loading && <div>Loading...</div>}
