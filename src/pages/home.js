@@ -10,6 +10,7 @@ function Home() {
     const [symbols, setSymbols] = useState([]);
     const [rawData, setRawData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [cardLoading, setCardLoading] = useState(true);
     const [prices, setPrices] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [longName, setLongName] = useState({});
@@ -32,16 +33,20 @@ function Home() {
             fetch(`http://localhost:8000/recommendation/stock?symbol=${symbol}`)
                 .then(res => res.json())
                 .then(data => {
-                    setRecommendation(prev => ({
-                        ...prev,
-                        [symbol]: data.data
-                    }));
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        setRecommendation(prev => ({
+                            ...prev,
+                            [symbol]: data.data[0].recommendation
+                        }));
+                    }
+                    
                 })
                 .catch(err => console.error(`Failed fetching recommendation for ${symbol}`, err));
         });
     }, [symbols]);
 
     useEffect(() => {
+        setLoading(true);
         // 如果沒有 symbol，就不執行
         if (symbols.length === 0) return;
 
@@ -59,7 +64,7 @@ function Home() {
                             ...prevPrices,
                             [symbol]: price
                         }));
-                        if (data.data[0].close > data.data[1].close) {
+                        if (data.data[0].close >= data.data[1].close) {
                             setIncreaseDecrease(prev => ({
                                 ...prev,
                                 [symbol]: 'increased'
@@ -73,7 +78,8 @@ function Home() {
                     }
 
                 })
-                .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
+                .catch(err => console.error(`Failed fetching price for ${symbol}`, err))
+                .finally(() => setLoading(false));
         });
     }, [symbols]);
 
@@ -203,6 +209,7 @@ function Home() {
     const getSymbolsForSelection = () => {
         let out = [];
 
+        
         if (!selectedSector) {
             if (!selectedIndustry) {
                 out = symbols.slice();
@@ -233,6 +240,8 @@ function Home() {
            });
             
         } // filter symbols include input in search bar
+        
+        
 
         // dedupe and sort alphabetically
         return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
@@ -395,9 +404,9 @@ function bookmarkClick() {
                     </select>
                 </div>
             </div>
-
+            
             <div className="card-container">
-                {loading && <div className='card'>Loading...</div>}
+                {loading && <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>Loading...</p>}
                 {!loading && getSymbolsForSelection().length === 0 && (
                     
                     <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>No stocks available</p>
@@ -407,7 +416,7 @@ function bookmarkClick() {
                         <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
                         <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
                             <div style={{flex:'1'}}>
-                                current price<br/>
+                                last close price<br/>
                                 {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
                                 {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
                                 {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}

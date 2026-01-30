@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import '../styles/ranklist.css';
-import buytest from '../test/buylisttest.json';
 
+/*
 const buyData = [
   {
       "Rank": 1,
@@ -147,17 +147,66 @@ const sellData = [
       "Appreciation": 7.3
     }
 ];
+*/
 
 function Ranklist() {
 
   const [mode, setMode] = useState("buy"); // "buy" or "sell"
+  const [symbols, setSymbols] = useState([]);
+  const [buyData, setBuyData] = useState([]);
+  const [sellData, setSellData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const rows = mode === "buy" ? buyData : sellData;
 
+  useEffect(() => {
+    setLoading(true);
+    if (symbols.length === 0) return;
+    const promises = symbols.map(symbol => 
+      fetch(`http://localhost:8000/rank/stock?symbol=${symbol}`)
+        .then(res => res.json())
+    );
+
+    Promise.all(promises)
+      .then(results => {
+      // results = [{search: ["AAPL"], data: [{potential: -4.21}]}, ...]
+      
+      const allRows = results
+        .map((data, i) => {
+          const symbol = symbols[i];
+          const row = data.data?.[0];
+          return row ? { symbol, ...row } : null;
+        })
+        .filter(Boolean); // remove nulls (not found symbols)
+
+      // Split and sort
+      const buys = allRows
+        .filter(r => r.potential >= 0)
+        .sort((a, b) => b.potential - a.potential);
+
+      const sells = allRows
+        .filter(r => r.potential < 0)
+        .sort((a, b) => a.potential - b.potential);
+
+      setBuyData(buys);
+      setSellData(sells);
+    })
+    .catch(err => console.error('Fetch error:', err))
+    .finally(() => setLoading(false));
+  }, [symbols]);
+
+  useEffect(() => {
+    fetch(`http://localhost:8000/ticker-symbols/`)
+      .then(res => res.json())
+      .then(data => {
+        setSymbols(data.tickers);
+      })
+      .catch(err => console.error("Failed fetching ticker symbols", err));
+  }, []);
 
   return (
     <>
       <h1>Rank List Page</h1>
-      <div style={{width:'90%', margin:'auto'}}>
+      <div style={{width:'90%', margin:'auto', marginBottom:'5%'}}>
         <div className="button_container">
         <button className="list_button"
           onClick={() => setMode("buy")}
@@ -186,22 +235,30 @@ function Ranklist() {
           <tr>
             <th>Rank No.</th>
             <th>Symbol</th>
-            <th>Type</th>
-            <th>Current Price</th>
-            <th>Appreciation Potential</th>
+            <th>Industry</th>
+            <th>Last Close Price</th>
+            {mode === "buy" ? <th>Appreciation Potential</th> : <th>Depreciation Potential</th>}
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.Rank}>
-              <td>{row.Rank}</td>
-              <td>{row.Symbol}</td>
-              <td>{row.Type}</td>
-              <td>{row.Price}</td>
-              <td>{row.Appreciation}%</td>
+        {loading ? (
+          <tbody>
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center" }}>Loading...</td>
             </tr>
-          ))}
-        </tbody>
+          </tbody>
+        ) : (
+          <tbody>
+            {rows.map((row, index) => (
+              <tr key={row.index}>
+                <td>{index + 1}</td>
+                <td><a href={`http://localhost:3000/detail/${row.symbol}`}>{row.symbol}</a></td>
+                <td>{row.industry}</td>
+                <td>{row.current_price.toFixed(2)}</td>
+                <td>{Math.abs(row.potential).toFixed(2)}%</td>
+              </tr>
+         ))}
+         </tbody>
+        )}
       </table>
       </div>
     </>
