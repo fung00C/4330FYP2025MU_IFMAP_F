@@ -2,8 +2,7 @@ import React, {use, useEffect, useState} from 'react';
 import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
-
-import { uselogin } from '../logincheck';
+import { Uselogin } from '../logincheck';
 
 function Home() {
     const navigate = useNavigate();
@@ -24,7 +23,7 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
-    const { islogin } = uselogin();
+    const { islogin } = Uselogin();
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
 
     useEffect(() => {
@@ -368,7 +367,11 @@ function bookmarkClick() {
     }
 
     function userClick() {
-        navigate("/user")
+        if (!islogin) {
+            navigate("/login");
+        } else {
+            navigate("/user");
+        }
     }
 
     function symbolClick(symbol) {
@@ -425,13 +428,14 @@ function bookmarkClick() {
                                 recommendation<br/>
                                 {recommendation[s] ? recommendation[s] : '-'}
                             </div>
-                        </div>
                         <button onClick={(e) => {
                             e.stopPropagation(); // Prevents the event from bubbling up
                             toggleBookmark(s);
                         }}>
                         {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
                         </button>
+                        </div>
+
                     </div>
                 ))}
             </div>

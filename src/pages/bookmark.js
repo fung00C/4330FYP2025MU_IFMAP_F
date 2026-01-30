@@ -235,7 +235,7 @@ function Bookmark() {
 
     return (
         <div className="Container">
-                <div>Bookmark</div>
+                <h1>Bookmark</h1>
                 {loading && <div className='card'>Loading...</div>}
                 {!loading && getSymbolsForSelection().length === 0 && (
                     <div className='card'>No stocks available</div>
@@ -260,7 +260,7 @@ function Bookmark() {
                         toggleBookmark(s);
                         }}
 >
-                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        {bookmarkedSymbols.includes(s) ? 'Cancel notification' : 'Notification'}
                         </button>
                     </div>
                 ))}
