@@ -60,7 +60,7 @@ if (response.ok) {
         <button type="submit" className="submit" onClick={ClickLogin}>Login</button>
       </div>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="message">{message}</p>}
     </div>
   )
 }

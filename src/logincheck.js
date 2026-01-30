@@ -20,4 +20,4 @@ export const LoginProvider = ({ children }) => {
     );
 };
 
-export const uselogin = () => useContext(Logincheck);
+export const Uselogin = () => useContext(Logincheck);
