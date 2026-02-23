@@ -125,7 +125,7 @@ function Index() {
                                     <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="date" />
-                                        <YAxis />
+                                        <YAxis domain={['auto', 'auto']}/>
                                             <Tooltip />
                                             <Legend />
                                             <Line type="monotone" dataKey="close" stroke="#8884d8" dot={false} />
