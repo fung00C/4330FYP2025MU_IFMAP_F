@@ -2,9 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const BookmarkPage = () => {
-    const [bookmarkedStocks, setBookmarkedStocks] = useState([]);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const [bookmarks, setBookmarks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [symbols, setSymbols] = useState([]);
+    const [rawData, setRawData] = useState(null);
+    const [prices, setPrices] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sectorMap, setSectorMap] = useState({});
+    const [sectors, setSectors] = useState([]);
+    const [industries, setIndustries] = useState([]);
+    const [selectedSector, setSelectedSector] = useState('');
+    const [selectedIndustry, setSelectedIndustry] = useState(''); 
+    const [symbolInfo, setSymbolInfo] = useState({}); 
+    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+
 
     const [IncreaseDecrease, setIncreaseDecrease] = useState({});
     const [recommendation, setRecommendation] = useState({});
@@ -76,7 +88,7 @@ const BookmarkPage = () => {
         });
     }, [symbols]);
 
-     function handleSearchChange(event) {
+        function handleSearchChange(event) {
             let input = event.target.value.toUpperCase();
             setSearchTerm(input);
         }
@@ -277,10 +289,10 @@ const BookmarkPage = () => {
             setLoading(false);
         };
 
-        fetchBookmarks();
-    }, []);
+        
+    
 
-    const handleStockClick = (symbol) => {
+    const symbolClick = (symbol) => {
         navigate(`/detail/${symbol}`); // Redirect to stock detail page
     };
 

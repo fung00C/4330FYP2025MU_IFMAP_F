@@ -328,37 +328,7 @@ function Home() {
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
     }, [symbols]);
-   /*useEffect(() => {
-        const fetchBookmarks = async () => {
-            const response = await fetch('http://localhost:8000/bookmark/', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const bookmarks = data.map(item => item.stock_symbol);
-                setBookmarkedSymbols(bookmarks);
-            }
-        };
-
-        /*const fetchSymbols = async () => {
-            setLoading(true);
-            const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
-            if (response.ok) {
-                const data = await response.json();
-                const foundSymbols = extractSymbols(data); // Ensure you define this function correctly
-                const uniqueSymbols = Array.from(new Set(foundSymbols));
-                setSymbols(uniqueSymbols);
-            }
-            setLoading(false);
-        };*/
-
-        fetchBookmarks();
-        //fetchSymbols();
-    }, []);
-
+   
     const toggleBookmark = async (symbol) => {
         const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
         if (bookmarks.includes(symbol)) {
@@ -467,7 +437,7 @@ function bookmarkClick() {
                             e.stopPropagation(); // Prevents the event from bubbling up
                             toggleBookmark(s);
                         }}>
-                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
                         </button>
                         </div>
                         </div>
