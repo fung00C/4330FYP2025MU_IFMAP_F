@@ -433,12 +433,14 @@ function bookmarkClick() {
                                 {recommendation[s] ? recommendation[s] : '-'}
                             </div>
                         <div style={{ flex: '1' }}>
-                        <button stylex={{marginTop:'10px'}}onClick={(e) => {
-                            e.stopPropagation(); // Prevents the event from bubbling up
-                            toggleBookmark(s);
-                        }}>
-                        {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
-                        </button>
+                        {islogin && 
+                            <button style={{alignSelf:'flex-end', marginLeft:'auto'}} onClick={(e) => {
+                                e.stopPropagation(); // Prevents the event from bubbling up
+                                toggleBookmark(s);
+                            }}>
+                                {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                            </button>
+                        }
                         </div>
                         </div>
 
