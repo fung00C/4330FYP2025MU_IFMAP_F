@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import homeimage from '../image/home.png'
+import '../styles/changepassword.css';
 
 
 const ChangePassword = () => {
@@ -30,10 +32,15 @@ const ChangePassword = () => {
             setMessage(data.detail || 'Failed to change password.');
         }
     };
-
+    function homeClick(){
+        navigate("/")
+    }
     return (
         <div className="container">
+            <div className="background"></div>
+            <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
             <h1>Change Password</h1>
+            <div className="inputs">
             <div className="input">
                 <input
                     type="password"
@@ -51,6 +58,7 @@ const ChangePassword = () => {
                 />
             </div>
             <button onClick={handleChangePassword}>Change Password</button>
+            </div>
             {message && <div className="message">{message}</div>}
         </div>
     );
