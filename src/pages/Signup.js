@@ -2,6 +2,7 @@ import React,{useState} from 'react'
 import '../styles/Signup.css'
 import email_icon from '../image/email.png'
 import password_icon from '../image/password.png'
+import homeimage from '../image/home.png'
 import {useNavigate} from 'react-router-dom';
 const LoginSignup = () => {
   const [email,setEmail]=useState('');
@@ -10,6 +11,9 @@ const LoginSignup = () => {
   const navigate = useNavigate();
 function ClickLogin(){
   navigate("/login");
+}
+function homeClick(){
+  navigate("/")
 }
   const handleSubmit= async(e)=>{
     e.preventDefault();
@@ -24,19 +28,23 @@ function ClickLogin(){
   });
       const data= await response.json();
 if (response.ok) {
-      setMessage(data.message); // Display success message
-      // Optionally navigate or reset fields
+      //setMessage(data.message); // Display success message
+      window.alert(data.message);
+      navigate("/login");
+// Optionally navigate or reset fields
     } else {
       // Handle registration error, such as email already taken
-      setMessage(data.detail);
+      window.alert(data.detail);
     }
     } catch(error){
-      setMessage('An error occurred. Please try again later.');
+      window.alert('An error occurred. Please try again later.');
     }
   };
 
   return (
     <div className="container">
+      <div className="background"></div>
+        <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
         <div className="header">
             <div className="text">Signup</div>
             <div className="underline"></div>

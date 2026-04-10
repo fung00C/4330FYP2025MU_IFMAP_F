@@ -3,6 +3,7 @@ import '../styles/LoginSignup.css'
 import {useNavigate} from 'react-router-dom';
 import email_icon from '../image/email.png'
 import password_icon from '../image/password.png'
+import homeimage from '../image/home.png'
 import { Uselogin } from '../logincheck';
 const LoginSignup = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,9 @@ const LoginSignup = () => {
   const { login } = Uselogin();
 function Clicksignup(){
   navigate("/signup");
+}
+function homeClick(){
+  navigate("/")
 }
 async function handleLogin() {
   setMessage('');
@@ -28,16 +32,18 @@ async function handleLogin() {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('user_email', email);
 
-            setMessage('Login successful!');
             login(); // Call the login function from Uselogin
+            window.alert('Login successful!');
             navigate("/"); // Redirect to home page
         } else {
-            setMessage(data.detail || 'Login failed. Please try again.'); // Provide a default message if none is provided
+            window.alert(data.detail || 'Login failed. Please try again.'); // Provide a default message if none is provided
         }
   }
 
   return (
     <div className="container">
+      <div className="background"></div>
+      <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
         <div className="header">
             <div className="text">Login</div>
             <div className="underline"></div>
