@@ -1,21 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function Bookmark() {
-    const navigate = useNavigate();
-    const [bookmarks, setBookmarks] = useState([]);
+const BookmarkPage = () => {
+    const [bookmarkedStocks, setBookmarkedStocks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [symbols, setSymbols] = useState([]);
-    const [rawData, setRawData] = useState(null);
-    const [prices, setPrices] = useState({});
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sectorMap, setSectorMap] = useState({});
-    const [sectors, setSectors] = useState([]);
-    const [industries, setIndustries] = useState([]);
-    const [selectedSector, setSelectedSector] = useState('');
-    const [selectedIndustry, setSelectedIndustry] = useState(''); 
-    const [symbolInfo, setSymbolInfo] = useState({}); 
-    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+    const navigate = useNavigate();
 
     const [IncreaseDecrease, setIncreaseDecrease] = useState({});
     const [recommendation, setRecommendation] = useState({});
@@ -283,25 +272,17 @@ function Bookmark() {
                 });
                 setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
             } else {
-                // Add bookmark with email and stock data
-                await fetch('http://localhost:8000/bookmark/', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        email: email,            // Include user's email
-                        stock_symbol: symbol 
-                    }),
-                });
-                setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
+                console.error('Failed to fetch bookmarks');
             }
+            setLoading(false);
         };
-       
-    function symbolClick(symbol) {
-        navigate(`/detail/${symbol}`)
-    }
+
+        fetchBookmarks();
+    }, []);
+
+    const handleStockClick = (symbol) => {
+        navigate(`/detail/${symbol}`); // Redirect to stock detail page
+    };
 
     return (
         <>
@@ -345,6 +326,6 @@ function Bookmark() {
             </div>
             </>
     );
-}
+};
 
-export default Bookmark;
+export default BookmarkPage;

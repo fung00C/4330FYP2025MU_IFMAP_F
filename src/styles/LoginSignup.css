@@ -6,6 +6,7 @@
     width: 600px;
     background: #ffffff;
     padding-bottom: 30px;
+    border-radius: 4px;
 }
 .header{
     display: flex;
@@ -41,6 +42,7 @@
     height: 80px;
     background: #eaeaea;
     border-radius: 6px;
+    padding-left: 20px;
 }
 .input img{
     margin: 0px 30px;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import homeimage from '../image/home.png'
 import '../styles/user.css';
 
 const User = () => {
@@ -36,7 +37,9 @@ const User = () => {
         console.log("Change Password clicked");
         navigate("/changepassword");
     };
-
+    function homeClick(){
+        navigate("/")
+    }
 async function handleDeleteAccount() {
     console.log("Delete Account clicked");
 
@@ -67,8 +70,10 @@ async function handleDeleteAccount() {
 
     return (
         <div className="container">
+            <div className="background"></div>
             <h1 className="title">User Page</h1>
-            <h1 className="title">Welcome to User Page</h1>
+            <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+            <h1>Welcome to User Page</h1>
             {error ? (
                 <p className="error-message">{error}</p>
             ) : (

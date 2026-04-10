@@ -111,12 +111,34 @@ function Index() {
             {!loading && data && data.data && (
                 <div style={{borderTop:'2px solid #ddd'}}>
                     <h2>Stock Information</h2>
-                    <strong>Composition:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Composition || 'N/A') : 'N/A'}<br/>
-                        <strong>Weighting:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Weighting || 'N/A') : 'N/A'}<br/>
-                        <strong>Purpose:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Purpose || 'N/A') : 'N/A'}<br/>
-                        <strong>Management:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Management || 'N/A') : 'N/A'}<br/>
-                        <strong>Accessibility:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Accessibility || 'N/A') : 'N/A'}<br/>
-                        <strong>Sectors:</strong> {Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Sectors || 'N/A') : 'N/A'}<br/>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <tbody>
+            <tr>
+                <td><strong>Composition:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Composition || 'N/A') : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Weighting:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Weighting || 'N/A') : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Purpose:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Purpose || 'N/A') : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Management:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Management || 'N/A') : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Accessibility:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Accessibility || 'N/A') : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Sectors:</strong></td>
+                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Sectors || 'N/A') : 'N/A'}</td>
+            </tr>
+        </tbody>
+    </table>
                     </div>
                 
             )}

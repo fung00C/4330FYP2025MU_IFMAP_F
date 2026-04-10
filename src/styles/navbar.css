@@ -1,10 +1,11 @@
 .navbar {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
+    background-color: #9ac6f3;
+    border-bottom: 2px solid #c8daec;
     padding: 0;
     position: sticky;
     top: 0;
     z-index: 100;
+    border-radius: 8px;
 }
 
 .navbar-container {
@@ -21,7 +22,7 @@
     border: none;
     background-color: transparent;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 100;
     color: #495057;
     cursor: pointer;
     transition: all 0.3s ease;
