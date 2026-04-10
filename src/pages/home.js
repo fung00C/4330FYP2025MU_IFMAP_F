@@ -5,13 +5,13 @@ import myImage from '../image/user.png'
 import bookmarkimage from '../image/bookmark.png'
 import downimage from '../image/arrow-down.png'
 import { Uselogin } from '../logincheck';
+import axios from 'axios';
 
 function Home() {
     const navigate = useNavigate();
     const [symbols, setSymbols] = useState([]);
     const [rawData, setRawData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [cardLoading, setCardLoading] = useState(true);
     const [prices, setPrices] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [longName, setLongName] = useState({});
@@ -27,6 +27,20 @@ function Home() {
     const [symbolInfo, setSymbolInfo] = useState({}); 
     const { islogin } = Uselogin();
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+
+    const email = localStorage.getItem('user_email');
+    const [bookmarks, setBookmarks] = useState([]);
+
+
+    useEffect(() => {
+        if (!email) return;
+        fetch(`http://localhost:8000/bookmarks/get?email=${email}`)
+            .then(res => res.json())
+            .then(data => {
+                setBookmarks(data.data || []);
+            })
+            .catch(err => console.error('Failed to fetch bookmarks:', err));
+    }, [email]);
 
     useEffect(() => {
         if (symbols.length === 0) return;
@@ -249,6 +263,20 @@ function Home() {
     }
 
     useEffect(() => {
+        
+        fetch(`http://localhost:8000/ticker-symbols/`)
+            .then(res => res.json())
+            .then(data => {
+                setSymbols(data.tickers);
+            })
+            .catch(err => {
+                console.error('Failed fetching ticker symbols', err);
+                setSymbols([]);
+            })
+            
+    }, []);
+
+    useEffect(() => {
         setLoading(true);
         fetch('http://localhost:8000/category/stock')
             .then(res => res.json())
@@ -257,7 +285,7 @@ function Home() {
                 const found = extractSymbols(data);
                 // dedupe and keep order
                 const uniq = Array.from(new Set(found));
-                setSymbols(uniq);
+                //setSymbols(uniq);
 
                 const map = buildSectorMap(data);
                 setSectorMap(map);
@@ -315,7 +343,7 @@ function Home() {
             }
         };
 
-        const fetchSymbols = async () => {
+        /*const fetchSymbols = async () => {
             setLoading(true);
             const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
             if (response.ok) {
@@ -325,58 +353,40 @@ function Home() {
                 setSymbols(uniqueSymbols);
             }
             setLoading(false);
-        };
+        };*/
 
         fetchBookmarks();
-        fetchSymbols();
-    }, []);*/
+        //fetchSymbols();
+    }, []);
 
-const toggleBookmark = async (symbol) => {
-    const email = localStorage.getItem('user_email');
-    if (bookmarkedSymbols.includes(symbol)) {
-        // Remove bookmark
-        await fetch(`http://localhost:8000/bookmark/${symbol}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                'Content-Type': 'application/json',
-            },
-        });
-        setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
-    } else {
-        // Add bookmark
-        await fetch('http://localhost:8000/bookmark', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                user_email: email,
-                stock_symbol: symbol // Send only stock symbol as bookmark
-            }),
-        });
-        setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
-    }
-};
-
-const fetchBookmarks = async () => {
-    const response = await fetch('http://localhost:8000/bookmark', {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        const bookmarks = data.map(item => item.stock_symbol);
-        setBookmarkedSymbols(bookmarks);
-    }
-};
-
-useEffect(() => {
-    fetchBookmarks();
-}, []);
+    const toggleBookmark = async (symbol) => {
+        const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
+        if (bookmarks.includes(symbol)) {
+            // Remove bookmark
+            await fetch(`http://localhost:8000/bookmarks/remove?symbol=${symbol}&email=${email}`, {
+                method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+            })
+                .then(res => res.json())
+                .catch(err => console.error('Failed to remove bookmark:', err));
+            setBookmarks(prev => prev.filter(s => s !== symbol));
+        } else {
+            // Add bookmark with email and stock data
+            await fetch(`http://localhost:8000/bookmarks/add?symbol=${symbol}&email=${email}`, {
+                method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+            })
+                .then(res => res.json())
+                .catch(err => console.error('Failed to add bookmark:', err));
+            setBookmarks(prev => [...prev, symbol]);
+        }
+    };
 
 function bookmarkClick() {
         if (!islogin) {

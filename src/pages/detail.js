@@ -12,6 +12,10 @@ function Detail() {
     const getTodayYYYYMMDD = () => new Date().toISOString().split('T')[0];
     const getLastYearYYYYMMDD = () => new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
 
+    // filter state for start/end dates
+    const [startDate, setStartDate] = useState(getLastYearYYYYMMDD());
+    const [endDate, setEndDate] = useState(getTodayYYYYMMDD());
+
     const transformPriceData = (raw) => {
         if (!raw) return [];
         const arr = raw.data || [];
@@ -39,10 +43,12 @@ function Detail() {
     }, [symbol]);
 
     useEffect(() => {
+        // fetch price data whenever symbol or date filters change
         setPriceLoading(true);
-        const startDate = getLastYearYYYYMMDD();
-        const endDate = getTodayYYYYMMDD();
-        fetch(`http://localhost:8000/prices/stock/query-all?symbols=${symbol}&start_date=${startDate}&end_date=${endDate}`)
+        // ensure dates are defined
+        const s = startDate || getLastYearYYYYMMDD();
+        const e = endDate || getTodayYYYYMMDD();
+        fetch(`http://localhost:8000/prices/stock/query-all?symbols=${symbol}&start_date=${s}&end_date=${e}`)
             .then(res => res.json())
             .then(data => {
                 setPriceData(data);
@@ -52,7 +58,7 @@ function Detail() {
                 setPriceData(null);
             })
             .finally(() => setPriceLoading(false));
-    }, [symbol]);
+    }, [symbol, startDate, endDate]);
 
     const chartData = transformPriceData(priceData);
 
@@ -124,20 +130,45 @@ function Detail() {
                     </div>
                 </>
             )}
+            
             {!loading && (!data || !data.data) && <div>No data available</div>}
             {priceLoading && <div>Loading price data...</div>}
             {!priceLoading && chartData && chartData.length > 0 && (
-                <div style={{marginTop:'32px', borderTop:'2px solid #ddd'}}>
+                <div style={{marginTop:'32px', borderTop:'2px solid #ddd', marginBottom:'32px'}}>
                     <h2>Close Price History</h2>
+                    {/* filters for date range */}
+                    <div style={{marginTop:'24px'}}>
+                        <label>
+                            Start Date: &nbsp;
+                            <input
+                                type="date"
+                                value={startDate}
+                                min="2015-01-02"
+                                max={endDate}
+                                onChange={e => setStartDate(e.target.value)}
+                            />
+                        </label>
+                        &nbsp;&nbsp;
+                        <label>
+                            End Date: &nbsp;
+                            <input
+                                type="date"
+                                value={endDate}
+                                min={startDate}
+                                max={getTodayYYYYMMDD()}
+                                onChange={e => setEndDate(e.target.value)}
+                            />
+                        </label>
+                    </div>
                     <ResponsiveContainer width="100%" height={400}>
                         <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" tick={{ fill: '#FFFFFF' }}/>
-                            <YAxis tick={{ fill: '#FFFFFF' }}/>
+                            <XAxis dataKey="date" />
+                            <YAxis domain={['auto', 'auto']}/>
                                 <Tooltip />
                                 <Legend />
-                                <Line type="monotone" dataKey="close" stroke="#ffffff" dot={false} />
-                                <Brush dataKey="date" height={30} stroke="#8884d8" travellerWidth={10} />
+                                <Line type="monotone" dataKey="close" stroke="#8884d8" dot={false} />
+                                
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
