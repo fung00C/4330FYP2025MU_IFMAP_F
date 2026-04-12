@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function Bookmark() {
+const BookmarkPage = () => {
     const navigate = useNavigate();
     const [bookmarks, setBookmarks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,7 +17,78 @@ function Bookmark() {
     const [symbolInfo, setSymbolInfo] = useState({}); 
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
 
-     function handleSearchChange(event) {
+
+    const [IncreaseDecrease, setIncreaseDecrease] = useState({});
+    const [recommendation, setRecommendation] = useState({});
+    const email = localStorage.getItem('user_email');
+
+    useEffect(() => {
+            if (!email) return;
+            fetch(`http://localhost:8000/bookmarks/get?email=${email}`)
+                .then(res => res.json())
+                .then(data => {
+                    setBookmarks(data.data || []);
+                })
+                .catch(err => console.error('Failed to fetch bookmarks:', err));
+        }, [email]);
+
+    useEffect(() => {
+         setLoading(true);
+         // 如果沒有 symbol，就不執行
+        if (bookmarks.length === 0) return;
+    
+        // TODO: change to handle one by one - 實現逐個抓取
+        bookmarks.forEach(symbol => {
+            // 針對每一個 symbol 單獨發送請求
+            fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=2`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {                            
+                        const price = data.data[0].close;
+                        // 使用 functional update (prev => ...) 
+                        // 確保不會覆蓋掉其他非同步請求已經寫入的價格
+                        setPrices(prevPrices => ({
+                            ...prevPrices,
+                            [symbol]: price
+                        }));
+                        if (data.data[0].close >= data.data[1].close) {                                
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'increased'
+                            }));
+                        } else if (data.data[0].close < data.data[1].close) {
+                            setIncreaseDecrease(prev => ({
+                                ...prev,
+                                [symbol]: 'decreased'
+                            }));
+                        }
+                    }
+    
+                })
+                .catch(err => console.error(`Failed fetching price for ${symbol}`, err))
+                .finally(() => setLoading(false));
+        });
+    }, [bookmarks]);
+
+    useEffect(() => {
+        if (symbols.length === 0) return;
+        symbols.forEach(symbol => {
+            fetch(`http://localhost:8000/recommendation/stock?symbol=${symbol}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                        setRecommendation(prev => ({
+                            ...prev,                                
+                            [symbol]: data.data[0].recommendation
+                        }));
+                    }
+                        
+                })
+                .catch(err => console.error(`Failed fetching recommendation for ${symbol}`, err));
+        });
+    }, [symbols]);
+
+        function handleSearchChange(event) {
             let input = event.target.value.toUpperCase();
             setSearchTerm(input);
         }
@@ -91,7 +162,7 @@ function Bookmark() {
     
             if (!selectedSector) {
                 if (!selectedIndustry) {
-                    out = symbols.slice();
+                    out = bookmarks.slice();
                 } // All sectors & industries
                 else {
                     // collect symbols across all sectors for the selected industry
@@ -147,10 +218,10 @@ function Bookmark() {
     
         useEffect(() => {
             // 如果沒有 symbol，就不執行
-            if (symbols.length === 0) return;
+            if (bookmarks.length === 0) return;
     
             // TODO: change to handle one by one - 實現逐個抓取
-            symbols.forEach(symbol => {
+            bookmarks.forEach(symbol => {
                 // 針對每一個 symbol 單獨發送請求
                 // 注意：這裡因為只查一支股票，保留 limit=1 是合理的（抓最新一筆）
                 fetch(`http://localhost:8000/prices/stock/query-several?symbols=${symbol}&columns=close&limit=1`)
@@ -168,7 +239,7 @@ function Bookmark() {
                     })
                     .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
             });
-        }, [symbols]);
+        }, [bookmarks]);
         useEffect(() => {
             const fetchBookmarks = async () => {
                 const response = await fetch('http://localhost:8000/bookmark/', {
@@ -213,48 +284,33 @@ function Bookmark() {
                 });
                 setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
             } else {
-                // Add bookmark with email and stock data
-                await fetch('http://localhost:8000/bookmark/', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        email: email,            // Include user's email
-                        stock_symbol: symbol 
-                    }),
-                });
-                setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
+                console.error('Failed to fetch bookmarks');
             }
+            setLoading(false);
         };
-       
-    function symbolClick(symbol) {
-        navigate(`/detail/${symbol}`)
-    }
+
+        
+    
+
+    const symbolClick = (symbol) => {
+        navigate(`/detail/${symbol}`); // Redirect to stock detail page
+    };
 
     return (
-        <div className="Container">
-                <h1>Bookmark</h1>
+        <>
+        <h1>Bookmark</h1>
+        <div className="card-container">
+                
                 {loading && <div className='card'>Loading...</div>}
                 {!loading && getSymbolsForSelection().length === 0 && (
                     <div className='card'>No stocks available</div>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
                     <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
-                        <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
-                        <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
-                            <div style={{flex:'1'}}>
-                                current price<br/>
-                                {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
-                            </div>
-                            <div style={{flex:'1'}}>
-                                recommendation<br/>
-                                
-                            </div>
-                        </div>
-                        <button 
-                        style={{ fontSize: '0.8em', padding: '3px 5px' }} // Adjust font size and padding
+                        <div style={{height:'30%', display:'flex', width:'100%'}}>
+                            <p style={{margin:'auto 0', fontSize:'35px'}}>{s}</p>
+                            <button 
+                        style={{ fontSize: '0.8em', padding: '3px 5px', alignSelf:'flex-end', marginLeft:'auto' }} // Adjust font size and padding
                         onClick={(e) => {
                         e.stopPropagation(); // Prevents the event from bubbling up
                         toggleBookmark(s);
@@ -262,10 +318,26 @@ function Bookmark() {
 >
                         {bookmarkedSymbols.includes(s) ? 'Cancel notification' : 'Notification'}
                         </button>
+                        </div>
+                        <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
+                            <div style={{flex:'1'}}>
+                                last close price<br/>
+                                {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
+                                {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
+                                {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
+                            </div>
+                            <div style={{flex:'1'}}>
+                                recommendation<br/>
+                                {recommendation[s] ? recommendation[s] : '-'}
+                            </div>
+                        
+                        </div>
+                        
                     </div>
                 ))}
             </div>
+            </>
     );
-}
+};
 
-export default Bookmark;
+export default BookmarkPage;

@@ -1,15 +1,17 @@
 import React, {use, useEffect, useState} from 'react';
 import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
-import myImage from '../image/pngtree-outline-user-icon-png-image_1727916.jpg'
+import myImage from '../image/user.png'
+import bookmarkimage from '../image/bookmark.png'
+import downimage from '../image/arrow-down.png'
 import { Uselogin } from '../logincheck';
+import axios from 'axios';
 
 function Home() {
     const navigate = useNavigate();
     const [symbols, setSymbols] = useState([]);
     const [rawData, setRawData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [cardLoading, setCardLoading] = useState(true);
     const [prices, setPrices] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [longName, setLongName] = useState({});
@@ -25,6 +27,20 @@ function Home() {
     const [symbolInfo, setSymbolInfo] = useState({}); 
     const { islogin } = Uselogin();
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
+
+    const email = localStorage.getItem('user_email');
+    const [bookmarks, setBookmarks] = useState([]);
+
+
+    useEffect(() => {
+        if (!email) return;
+        fetch(`http://localhost:8000/bookmarks/get?email=${email}`)
+            .then(res => res.json())
+            .then(data => {
+                setBookmarks(data.data || []);
+            })
+            .catch(err => console.error('Failed to fetch bookmarks:', err));
+    }, [email]);
 
     useEffect(() => {
         if (symbols.length === 0) return;
@@ -247,6 +263,20 @@ function Home() {
     }
 
     useEffect(() => {
+        
+        fetch(`http://localhost:8000/ticker-symbols/`)
+            .then(res => res.json())
+            .then(data => {
+                setSymbols(data.tickers);
+            })
+            .catch(err => {
+                console.error('Failed fetching ticker symbols', err);
+                setSymbols([]);
+            })
+            
+    }, []);
+
+    useEffect(() => {
         setLoading(true);
         fetch('http://localhost:8000/category/stock')
             .then(res => res.json())
@@ -255,7 +285,7 @@ function Home() {
                 const found = extractSymbols(data);
                 // dedupe and keep order
                 const uniq = Array.from(new Set(found));
-                setSymbols(uniq);
+                //setSymbols(uniq);
 
                 const map = buildSectorMap(data);
                 setSectorMap(map);
@@ -298,63 +328,33 @@ function Home() {
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
     }, [symbols]);
-    useEffect(() => {
-        const fetchBookmarks = async () => {
-            const response = await fetch('http://localhost:8000/bookmark/', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const bookmarks = data.map(item => item.stock_symbol);
-                setBookmarkedSymbols(bookmarks);
-            }
-        };
-
-        const fetchSymbols = async () => {
-            setLoading(true);
-            const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
-            if (response.ok) {
-                const data = await response.json();
-                const foundSymbols = extractSymbols(data); // Ensure you define this function correctly
-                const uniqueSymbols = Array.from(new Set(foundSymbols));
-                setSymbols(uniqueSymbols);
-            }
-            setLoading(false);
-        };
-
-        fetchBookmarks();
-        fetchSymbols();
-    }, []);
-
+   
     const toggleBookmark = async (symbol) => {
         const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
-        if (bookmarkedSymbols.includes(symbol)) {
+        if (bookmarks.includes(symbol)) {
             // Remove bookmark
-            await fetch(`http://localhost:8000/bookmark/${symbol}`, {
+            await fetch(`http://localhost:8000/bookmarks/remove?symbol=${symbol}&email=${email}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+            })
+                .then(res => res.json())
+                .catch(err => console.error('Failed to remove bookmark:', err));
+            setBookmarks(prev => prev.filter(s => s !== symbol));
         } else {
             // Add bookmark with email and stock data
-            await fetch('http://localhost:8000/bookmark/', {
+            await fetch(`http://localhost:8000/bookmarks/add?symbol=${symbol}&email=${email}`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    email: email,            // Include user's email
-                    stock_symbol: symbol 
-                }),
-            });
-            setBookmarkedSymbols([...bookmarkedSymbols, symbol]);
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+            })
+                .then(res => res.json())
+                .catch(err => console.error('Failed to add bookmark:', err));
+            setBookmarks(prev => [...prev, symbol]);
         }
     };
 
@@ -381,15 +381,15 @@ function bookmarkClick() {
     return (
         <div>
             <div className="headerContainer">
-                <button className='round-button' onClick={userClick}>user</button>
-                <input type="text" className='searchbar' value={searchTerm} onChange={handleSearchChange}/>
-                <button className='round-button' onClick={bookmarkClick}>bookmark</button>
+                <button className='round-button' onClick={userClick}><img src={myImage} alt="" className='usericon'/><span className='label'>User</span></button>
+                <input type="text" className='searchbar'placeholder="Search.." value={searchTerm} onChange={handleSearchChange}/>
+                <button className='round-button' onClick={bookmarkClick}><img src={bookmarkimage} alt="" className='bookmarkicon'/><span className='blabel'>Bookmark</span></button>
             </div>
-            
+            <div className="background"></div>
             <div style={{display:'flex', gap:'12px', marginBottom:'12px', width:'100%', justifyContent:'center'}}>
                 <div style={{display:'inline-block'}}>
-                    <label style={{marginRight:'6px'}}>Sector:</label>
-                    <select value={selectedSector} onChange={e => { const v = e.target.value; setSelectedSector(v); setSelectedIndustry(''); setIndustries(v && sectorMap[v] ? Object.keys(sectorMap[v]) : getAllIndustries(sectorMap)); }}>
+                    <label style={{marginRight:'6px', fontWeight:'bold',textDecoration:'underline'  }}>Sector:</label>
+                    <select className="selectbox" value={selectedSector} onChange={e => { const v = e.target.value; setSelectedSector(v); setSelectedIndustry(''); setIndustries(v && sectorMap[v] ? Object.keys(sectorMap[v]) : getAllIndustries(sectorMap)); }}>
                         <option value=''>All</option>
                         {sectors.map((sec) => (
                             <option key={sec} value={sec}>{sec}</option>
@@ -398,8 +398,8 @@ function bookmarkClick() {
                 </div>
 
                 <div style={{display:'inline-block'}}>
-                    <label style={{marginRight:'6px'}}>Industry:</label>
-                    <select value={selectedIndustry} onChange={e => setSelectedIndustry(e.target.value)}>
+                    <label style={{marginRight:'6px',fontWeight:'bold',textDecoration:'underline'}}>Industry:</label>
+                    <select className="selectbox" value={selectedIndustry} onChange={e => setSelectedIndustry(e.target.value)}>
                         <option value=''>All</option>
                         {industries.map((ind) => (
                             <option key={ind} value={ind}>{ind}</option>
@@ -408,32 +408,40 @@ function bookmarkClick() {
                 </div>
             </div>
             
-            <div className="card-container">
+            <div className="card-container" >
                 {loading && <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>Loading...</p>}
                 {!loading && getSymbolsForSelection().length === 0 && (
                     
                     <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>No stocks available</p>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
-                    <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
+                    <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer',background: IncreaseDecrease[s] === 'increased' 
+            ? 'linear-gradient(to bottom right, lightgreen, green)' 
+            : IncreaseDecrease[s] === 'decreased' 
+                ? 'linear-gradient(to bottom right, lightcoral, red)' 
+                : 'linear-gradient(to bottom right, white, #f0f0f0)'}}>
                         <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
-                        <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
+                        <div style={{display: 'flex', flexDirection: 'column', height:'70%'}}>
                             <div style={{flex:'1'}}>
-                                last close price<br/>
+                                Last Close Price<br/>
                                 {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
                                 {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
                                 {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
                             </div>
                             <div style={{flex:'1'}}>
-                                recommendation<br/>
+                                Recommendation<br/>
                                 {recommendation[s] ? recommendation[s] : '-'}
                             </div>
-                        <button onClick={(e) => {
-                            e.stopPropagation(); // Prevents the event from bubbling up
-                            toggleBookmark(s);
-                        }}>
-                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
-                        </button>
+                        <div style={{ flex: '1' }}>
+                        {islogin && 
+                            <button style={{alignSelf:'flex-end', marginLeft:'auto'}} onClick={(e) => {
+                                e.stopPropagation(); // Prevents the event from bubbling up
+                                toggleBookmark(s);
+                            }}>
+                                {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                            </button>
+                        }
+                        </div>
                         </div>
 
                     </div>
