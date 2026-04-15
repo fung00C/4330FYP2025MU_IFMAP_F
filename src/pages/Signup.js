@@ -69,6 +69,9 @@ if (response.ok) {
       </div>
       </form>
       {message && <p className="message">{message}</p>}
+      <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
     </div>
   )
 }

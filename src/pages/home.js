@@ -3,6 +3,7 @@ import '../styles/home.css';
 import {useNavigate} from 'react-router-dom';
 import myImage from '../image/user.png'
 import bookmarkimage from '../image/bookmark.png'
+import unbookmarkimage from '../image/unbookmark.png'
 import downimage from '../image/arrow-down.png'
 import { Uselogin } from '../logincheck';
 import axios from 'axios';
@@ -25,7 +26,7 @@ function Home() {
     const [selectedSector, setSelectedSector] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState(''); 
     const [symbolInfo, setSymbolInfo] = useState({}); 
-    const { islogin } = Uselogin();
+    const { islogin, logout } = Uselogin(); 
     const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
 
     const email = localStorage.getItem('user_email');
@@ -328,20 +329,7 @@ function Home() {
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
     }, [symbols]);
-   /*useEffect(() => {
-        const fetchBookmarks = async () => {
-            const response = await fetch('http://localhost:8000/bookmark/', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
 
-            if (response.ok) {
-                const data = await response.json();
-                const bookmarks = data.map(item => item.stock_symbol);
-                setBookmarkedSymbols(bookmarks);
-            }
-        };
 
         /*const fetchSymbols = async () => {
             setLoading(true);
@@ -355,9 +343,7 @@ function Home() {
             setLoading(false);
         };*/
 
-        fetchBookmarks();
-        //fetchSymbols();
-    }, []);
+
 
     const toggleBookmark = async (symbol) => {
         const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
@@ -410,10 +396,21 @@ function bookmarkClick() {
 
     return (
         <div>
+            <header style={{textAlign:'center'}}>
+                <h1>Intelligence Financial Market Analysis Platform</h1>
+            </header>
             <div className="headerContainer">
                 <button className='round-button' onClick={userClick}><img src={myImage} alt="" className='usericon'/><span className='label'>User</span></button>
                 <input type="text" className='searchbar'placeholder="Search.." value={searchTerm} onChange={handleSearchChange}/>
                 <button className='round-button' onClick={bookmarkClick}><img src={bookmarkimage} alt="" className='bookmarkicon'/><span className='blabel'>Bookmark</span></button>
+                {islogin && (
+                <button className='round-button' onClick={() => {
+                    logout();
+                    navigate("/");
+                }}>
+                    <span className='blabel'>Sign Out</span>
+                </button>
+            )}
             </div>
             <div className="background"></div>
             <div style={{display:'flex', gap:'12px', marginBottom:'12px', width:'100%', justifyContent:'center'}}>
@@ -446,36 +443,38 @@ function bookmarkClick() {
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
                     <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer',background: IncreaseDecrease[s] === 'increased' 
-            ? 'linear-gradient(to bottom right, lightgreen, green)' 
+            ? 'linear-gradient(to right, white, lightgreen)' 
             : IncreaseDecrease[s] === 'decreased' 
-                ? 'linear-gradient(to bottom right, lightcoral, red)' 
-                : 'linear-gradient(to bottom right, white, #f0f0f0)'}}>
-                        <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
-                        <div style={{display: 'flex', flexDirection: 'column', height:'70%'}}>
-                            <div style={{flex:'1'}}>
-                                Last Close Price<br/>
-                                {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
-                                {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
-                                {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
-                            </div>
-                            <div style={{flex:'1'}}>
-                                Recommendation<br/>
-                                {recommendation[s] ? recommendation[s] : '-'}
-                            </div>
-                        <div style={{ flex: '1' }}>
-                        <button stylex={{marginTop:'10px'}}onClick={(e) => {
+                ? 'linear-gradient(to right, white, lightcoral)' 
+                : 'linear-gradient(to right, white, #f0f0f0)'}}>
+                    <button className="bookmarkbutton" onClick={(e) => {
                             e.stopPropagation(); // Prevents the event from bubbling up
                             toggleBookmark(s);
                         }}>
-                        {bookmarkedSymbols.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        <img src={bookmarks.includes(s) ? bookmarkimage : unbookmarkimage} 
+                        alt= {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
+                        style={{ width: '30px', height: '30px' }}/>
                         </button>
-                        </div>
+                        <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
+                        <div style={{display: 'flex', flexDirection: 'column', height:'70%'}}>
+                            <div style={{flex:'1'}}>
+                                <strong>Last Close Price</strong><br/>
+                                {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
+                                {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
+                                <span style={{fontSize:'25px'}}>{prices[s] !== undefined ? prices[s].toFixed(2) : '-'}</span>
+                            </div>
+                            <div style={{flex:'1'}}>
+                                <strong>Recommendation</strong><br/>
+                                <span style={{fontSize:'25px'}}>{recommendation[s] ? recommendation[s] : '-'}</span>
+                            </div>
                         </div>
 
                     </div>
                 ))}
             </div>
-
+                <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
         </div>
     );
 }

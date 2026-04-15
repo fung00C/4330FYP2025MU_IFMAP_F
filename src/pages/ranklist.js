@@ -114,6 +114,9 @@ function Ranklist() {
          </tbody>
         )}
       </table>
+      <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
       </div>
     </>
   );

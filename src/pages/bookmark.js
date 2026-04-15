@@ -1,15 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import homeimage from '../image/home.png'
+import unnotification from '../image/unnotification.png'
+import notification from '../image/notification.png'
+import '../styles/bookmark.css';
 const BookmarkPage = () => {
-    const [bookmarkedStocks, setBookmarkedStocks] = useState([]);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const [bookmarks, setBookmarks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [symbols, setSymbols] = useState([]);
+    const [rawData, setRawData] = useState(null);
+    const [prices, setPrices] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sectorMap, setSectorMap] = useState({});
+    const [sectors, setSectors] = useState([]);
+    const [industries, setIndustries] = useState([]);
+    const [selectedSector, setSelectedSector] = useState('');
+    const [selectedIndustry, setSelectedIndustry] = useState(''); 
+    const [symbolInfo, setSymbolInfo] = useState({}); 
+    const [bookmarkedSymbols, setBookmarkedSymbols] = useState([]);
 
     const [IncreaseDecrease, setIncreaseDecrease] = useState({});
     const [recommendation, setRecommendation] = useState({});
     const email = localStorage.getItem('user_email');
 
+    function homeClick(){
+      navigate("/")
+    }
     useEffect(() => {
             if (!email) return;
             fetch(`http://localhost:8000/bookmarks/get?email=${email}`)
@@ -277,8 +294,7 @@ const BookmarkPage = () => {
             setLoading(false);
         };
 
-        fetchBookmarks();
-    }, []);
+    
 
     const handleStockClick = (symbol) => {
         navigate(`/detail/${symbol}`); // Redirect to stock detail page
@@ -287,6 +303,8 @@ const BookmarkPage = () => {
     return (
         <>
         <h1>Bookmark</h1>
+        <div className="background"></div>
+        <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
         <div className="card-container">
                 
                 {loading && <div className='card'>Loading...</div>}
@@ -294,36 +312,45 @@ const BookmarkPage = () => {
                     <div className='card'>No stocks available</div>
                 )}
                 {!loading && getSymbolsForSelection().map((s, idx) => (
-                    <div className='card'  key={`${s}-${idx}`} onClick={() => symbolClick(s)} style={{cursor: 'pointer'}}>
+                    <div className='card'  key={`${s}-${idx}`} onClick={() => handleStockClick(s)} style={{cursor: 'pointer',background: IncreaseDecrease[s] === 'increased' 
+            ? 'linear-gradient(to right, white, lightgreen)' 
+            : IncreaseDecrease[s] === 'decreased' 
+                ? 'linear-gradient(to right, white, lightcoral)' 
+                : 'linear-gradient(to right, white, #f0f0f0)'}}>
                         <div style={{height:'30%', display:'flex', width:'100%'}}>
                             <p style={{margin:'auto 0', fontSize:'35px'}}>{s}</p>
-                            <button 
-                        style={{ fontSize: '0.8em', padding: '3px 5px', alignSelf:'flex-end', marginLeft:'auto' }} // Adjust font size and padding
+                            <button className="notificationbutton"
                         onClick={(e) => {
                         e.stopPropagation(); // Prevents the event from bubbling up
                         toggleBookmark(s);
                         }}
 >
-                        {bookmarkedSymbols.includes(s) ? 'Cancel notification' : 'Notification'}
+                        <img src={bookmarkedSymbols.includes(s) ? notification : unnotification}
+                        alt={bookmarkedSymbols.includes(s) ? 'Cancel notification' : 'Notification'}
+                        style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
                         </button>
                         </div>
-                        <div style={{display: 'flex', alignItems:'center', width:'100%', alignItems: 'flex-start', height:'70%'}}>
+                        <div style={{display: 'flex', flexDirection: 'column', width:'100%', alignItems: 'flex-start', height:'70%'}}>
                             <div style={{flex:'1'}}>
-                                last close price<br/>
+                                <strong>Last Close Price</strong><br/>
                                 {IncreaseDecrease[s] === 'increased' && <span style={{color:'green'}}>▲</span>}
                                 {IncreaseDecrease[s] === 'decreased' && <span style={{color:'red'}}>▼</span>}
-                                {prices[s] !== undefined ? prices[s].toFixed(2) : '-'}
+                                <span style={{fontSize:'25px'}}>{prices[s] !== undefined ? prices[s].toFixed(2) : '-'}</span>
                             </div>
                             <div style={{flex:'1'}}>
-                                recommendation<br/>
-                                {recommendation[s] ? recommendation[s] : '-'}
+                                <strong>Recommendation</strong><br/>
+                                <span style={{fontSize:'25px'}}>{recommendation[s] ? recommendation[s] : '-'}</span>
                             </div>
                         
                         </div>
                         
                     </div>
                 ))}
+                
             </div>
+            <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
             </>
     );
 };
