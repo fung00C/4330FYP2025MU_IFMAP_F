@@ -245,18 +245,17 @@ function Home() {
             }
         }
 
+        const validSymbols = new Set(symbols);
+        out = out.filter(s => validSymbols.has(s));
+
         if (searchTerm) {
-           // out = out.filter(s => s.includes(searchTerm.toUpperCase()));
            const upperInput = searchTerm.toUpperCase();
            out = out.filter(s => {
                const longN = longName[s] ? longName[s].toUpperCase() : '';
                const shortN = shortName[s] ? shortName[s].toUpperCase() : '';
                return s.includes(upperInput) || longN.includes(upperInput) || shortN.includes(upperInput);
            });
-            
         } // filter symbols include input in search bar
-        
-        
 
         // dedupe and sort alphabetically
         return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
@@ -407,7 +406,7 @@ function bookmarkClick() {
                     </select>
                 </div>
             </div>
-            
+           
             <div className="card-container" >
                 {loading && <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>Loading...</p>}
                 {!loading && getSymbolsForSelection().length === 0 && (

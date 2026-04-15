@@ -12,6 +12,7 @@ import Signup from './pages/Signup';
 import Changepassword from './pages/changepassword';
 import Navbar from './components/Navbar';
 import { LoginProvider } from './logincheck';
+import NotificationSetting from './pages/notificationSetting';
 
 function ConditionalNavbar() {
   const location = useLocation();
@@ -35,6 +36,7 @@ function App() {
         <Route path="/login" element={<LoginSignup />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/changepassword" element={<Changepassword/>}/>
+        <Route path="/bookmark/notification-setting" element={<NotificationSetting/>}/>
       </Routes>
     </Router>
     </LoginProvider>
