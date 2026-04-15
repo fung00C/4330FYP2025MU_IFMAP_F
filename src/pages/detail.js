@@ -2,20 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Brush } from 'recharts';
 import '../styles/detail.css';
+import homeimage from '../image/home.png'
+import {useNavigate} from 'react-router-dom';
+
 function Detail() {
     const { symbol } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [priceData, setPriceData] = useState(null);
     const [priceLoading, setPriceLoading] = useState(true);
-
+    const navigate = useNavigate()
     const getTodayYYYYMMDD = () => new Date().toISOString().split('T')[0];
     const getLastYearYYYYMMDD = () => new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
 
     // filter state for start/end dates
     const [startDate, setStartDate] = useState(getLastYearYYYYMMDD());
     const [endDate, setEndDate] = useState(getTodayYYYYMMDD());
-
+    function homeClick(){
+        navigate("/")
+    }
     const transformPriceData = (raw) => {
         if (!raw) return [];
         const arr = raw.data || [];
@@ -65,7 +70,8 @@ function Detail() {
     return (
         <div>
             <div className="background"></div>
-            <h1>{symbol} Detail Page</h1>
+            <h1 style={{"paddingLeft": "20px"}}>{symbol} Detail Page</h1>
+            <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
             {loading && <div>Loading...</div>}
             {!loading && data && data.data && (
                 <>
@@ -123,7 +129,7 @@ function Detail() {
             </tr>
             <tr>
                 <td><strong>Long business summary:</strong></td>
-                <td>{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Longbusinesssummary || 'N/A') : 'N/A'}</td>
+                <td className="summary">{Array.isArray(data.data) && data.data.length > 0 ? (data.data[0].Longbusinesssummary || 'N/A') : 'N/A'}</td>
             </tr>
         </tbody>
     </table>
@@ -134,7 +140,7 @@ function Detail() {
             {!loading && (!data || !data.data) && <div>No data available</div>}
             {priceLoading && <div>Loading price data...</div>}
             {!priceLoading && chartData && chartData.length > 0 && (
-                <div style={{marginTop:'32px', borderTop:'2px solid #ddd', marginBottom:'32px'}}>
+                <div className="chart">
                     <h2>Close Price History</h2>
                     {/* filters for date range */}
                     <div style={{marginTop:'24px'}}>
@@ -174,7 +180,9 @@ function Detail() {
                 </div>
             )}
             {!priceLoading && (!chartData || chartData.length === 0) && <div>No price data available</div>}
-            
+            <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
         </div>
     );
 }

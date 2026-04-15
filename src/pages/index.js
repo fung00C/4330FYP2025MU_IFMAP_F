@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Brush } from 'recharts';
-
+import '../styles/index.css'; 
 function Index() {
     const [currentPrice, setCurrentPrice] = useState(null);
     const [recommendation, setRecommendation] = useState(null);
@@ -91,11 +91,12 @@ function Index() {
 
     return (
         <div>
-            <h1>Index Page</h1>
+            <h1 style={{"paddingLeft": "20px"}}>Index Page</h1>
+            <div className="background"></div>
             <div style={{display:'flex', borderTop:'2px solid #ddd'}}>
                 {loading && <div>Loading...</div>}
                 {!loading && currentPrice && currentPrice.data && (
-                    <div style={{flex:'1'}}>
+                    <div style={{flex:'1',backgroundColor: 'rgba(255, 255, 255, 0.4)', paddingLeft: '20px'}}>
                         <strong>Last close price:</strong> {Array.isArray(currentPrice.data) && currentPrice.data.length > 0 ? (currentPrice.data[0].close.toFixed(2) || 'N/A') : 'N/A'}<br/>
                     </div>   
                 )}
@@ -109,7 +110,7 @@ function Index() {
             
 
             {!loading && data && data.data && (
-                <div style={{borderTop:'2px solid #ddd'}}>
+                <div className="tablec">
                     <h2>Stock Information</h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
@@ -146,7 +147,7 @@ function Index() {
             {!loading && (!data || !data.data) && <div>No data available</div>}
             {priceLoading && <div>Loading price data...</div>}
             {!priceLoading && chartData && chartData.length > 0 && (
-                <div style={{marginTop:'32px', borderTop:'2px solid #ddd'}}>
+                <div className="chart">
                     <h2>Close Price History</h2>
                     {/* filters for date range */}
                     <div style={{marginTop:'24px'}}>
@@ -186,7 +187,11 @@ function Index() {
                 </div>
             )}
             {!priceLoading && (!chartData || chartData.length === 0) && <div>No price data available</div>}
+            <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
         </div>
+        
     );
 }
 
