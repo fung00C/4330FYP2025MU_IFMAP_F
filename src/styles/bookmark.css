@@ -1,0 +1,22 @@
+.background {
+    position: fixed; /* Change to fixed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Set height to 100% */
+    background-image: url("../image/stockbackground.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: -1; /* Send the background to the back */
+    filter: blur(5px);
+}
+.notificationbutton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: auto;   
+    display: flex;
+    align-items: center;
+    outline: none;
+}

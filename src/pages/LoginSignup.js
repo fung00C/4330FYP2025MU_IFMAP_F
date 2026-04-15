@@ -63,6 +63,9 @@ async function handleLogin() {
         <div className="submit" onClick={handleLogin}>Login</div>
       </div>
       {message && <div className="message">{message}</div>}
+      <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
     </div>
   )
 }

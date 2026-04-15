@@ -73,6 +73,7 @@ async function handleDeleteAccount() {
             <div className="background"></div>
             <h1 className="title">User Page</h1>
             <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+            <div className="contentwrapper">
             <h1>Welcome to User Page</h1>
             {error ? (
                 <p className="error-message">{error}</p>
@@ -83,6 +84,10 @@ async function handleDeleteAccount() {
                 <button className="button" onClick={handleChangePassword}>Change Password</button>
                 <button className="button" onClick={handleDeleteAccount}>Delete Account</button>
             </div>
+            </div>
+            <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
+                    <p>@2025-2026 Yishu3 Intelligence Financial Market Analysis Platform</p>
+                </footer>
         </div>
     );
 };
