@@ -23,6 +23,23 @@ const BookmarkPage = () => {
     const [IncreaseDecrease, setIncreaseDecrease] = useState({});
     const [recommendation, setRecommendation] = useState({});
     const email = localStorage.getItem('user_email');
+    const [notified, setNotified] = useState([]); // symbols that are notified
+
+    useEffect(() => {
+        if (!email) return;
+        fetch(`http://localhost:8000/bookmarks/get_with_notify?email=${email}`, {
+                method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+            })
+            .then(res => res.json())
+            .then(data => {
+                setNotified(data.data || []);
+            })
+            .catch(err => console.error('Failed to fetch bookmarks with notify:', err));
+    }, [email]);
 
     function homeClick(){
       navigate("/")
@@ -93,7 +110,7 @@ const BookmarkPage = () => {
         });
     }, [symbols]);
 
-     function handleSearchChange(event) {
+        function handleSearchChange(event) {
             let input = event.target.value.toUpperCase();
             setSearchTerm(input);
         }
@@ -275,36 +292,38 @@ const BookmarkPage = () => {
             fetchBookmarks();
             fetchSymbols();
         }, []);
-    
-        const toggleBookmark = async (symbol) => {
-            const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
-            if (bookmarkedSymbols.includes(symbol)) {
-                // Remove bookmark
-                await fetch(`http://localhost:8000/bookmark/${symbol}`, {
-                    method: 'DELETE',
+            
+    const notificationClick = async (symbol) => {
+        await fetch(`http://localhost:8000/bookmarks/update_notify?email=${email}&symbol=${symbol}`, {
+                method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         'Content-Type': 'application/json',
                     },
-                });
-                setBookmarkedSymbols(bookmarkedSymbols.filter(s => s !== symbol));
-            } else {
-                console.error('Failed to fetch bookmarks');
-            }
-            setLoading(false);
-        };
+            })
+            .then(res => res.json())
+            .catch(err => console.error('Failed to update notification:', err));
+        if (notified.includes(symbol)) {
+            setNotified(prev => prev.filter(s => s !== symbol));
+        } else {
+            setNotified(prev => [...prev, symbol]);
+        }
+    };
 
-    
-
-    const handleStockClick = (symbol) => {
+    const symbolClick = (symbol) => {
         navigate(`/detail/${symbol}`); // Redirect to stock detail page
     };
+
+    const settingClick = () => {
+        navigate('/bookmark/notification-setting'); // Redirect to notification setting page
+    }
 
     return (
         <>
         <h1>Bookmark</h1>
         <div className="background"></div>
         <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+        <button onClick={settingClick}>Notification Setting</button>
         <div className="card-container">
                 
                 {loading && <div className='card'>Loading...</div>}
@@ -322,11 +341,11 @@ const BookmarkPage = () => {
                             <button className="notificationbutton"
                         onClick={(e) => {
                         e.stopPropagation(); // Prevents the event from bubbling up
-                        toggleBookmark(s);
+                        notificationClick(s);
                         }}
 >
-                        <img src={bookmarkedSymbols.includes(s) ? notification : unnotification}
-                        alt={bookmarkedSymbols.includes(s) ? 'Cancel notification' : 'Notification'}
+                        <img src={notified.includes(s) ? notification : unnotification}
+                        alt={notified.includes(s) ? 'Cancel notification' : 'Notification'}
                         style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
                         </button>
                         </div>

@@ -246,18 +246,17 @@ function Home() {
             }
         }
 
+        const validSymbols = new Set(symbols);
+        out = out.filter(s => validSymbols.has(s));
+
         if (searchTerm) {
-           // out = out.filter(s => s.includes(searchTerm.toUpperCase()));
            const upperInput = searchTerm.toUpperCase();
            out = out.filter(s => {
                const longN = longName[s] ? longName[s].toUpperCase() : '';
                const shortN = shortName[s] ? shortName[s].toUpperCase() : '';
                return s.includes(upperInput) || longN.includes(upperInput) || shortN.includes(upperInput);
            });
-            
         } // filter symbols include input in search bar
-        
-        
 
         // dedupe and sort alphabetically
         return Array.from(new Set(out)).sort((a, b) => String(a).localeCompare(String(b)));
@@ -329,22 +328,7 @@ function Home() {
                 .catch(err => console.error(`Failed fetching price for ${symbol}`, err));
         });
     }, [symbols]);
-
-
-        /*const fetchSymbols = async () => {
-            setLoading(true);
-            const response = await fetch('http://localhost:8000/category/stock'); // Adjust URL based on your backend
-            if (response.ok) {
-                const data = await response.json();
-                const foundSymbols = extractSymbols(data); // Ensure you define this function correctly
-                const uniqueSymbols = Array.from(new Set(foundSymbols));
-                setSymbols(uniqueSymbols);
-            }
-            setLoading(false);
-        };*/
-
-
-
+   
     const toggleBookmark = async (symbol) => {
         const email = localStorage.getItem('user_email');  // Assume user's email is stored in localStorage
         if (bookmarks.includes(symbol)) {
@@ -434,7 +418,7 @@ function bookmarkClick() {
                     </select>
                 </div>
             </div>
-            
+           
             <div className="card-container" >
                 {loading && <p style={{position: 'absolute', top: '15%', left: '50%', transform: 'translate(-50%, -50%'}}>Loading...</p>}
                 {!loading && getSymbolsForSelection().length === 0 && (
@@ -447,14 +431,14 @@ function bookmarkClick() {
             : IncreaseDecrease[s] === 'decreased' 
                 ? 'linear-gradient(to right, white, lightcoral)' 
                 : 'linear-gradient(to right, white, #f0f0f0)'}}>
-                    <button className="bookmarkbutton" onClick={(e) => {
+                    {islogin && <button className="bookmarkbutton" onClick={(e) => {
                             e.stopPropagation(); // Prevents the event from bubbling up
                             toggleBookmark(s);
                         }}>
                         <img src={bookmarks.includes(s) ? bookmarkimage : unbookmarkimage} 
                         alt= {bookmarks.includes(s) ? 'Unbookmark' : 'Bookmark'}
                         style={{ width: '30px', height: '30px' }}/>
-                        </button>
+                        </button>}
                         <div style={{height:'30%', fontSize:'2.5em'}}>{s}</div>
                         <div style={{display: 'flex', flexDirection: 'column', height:'70%'}}>
                             <div style={{flex:'1'}}>
