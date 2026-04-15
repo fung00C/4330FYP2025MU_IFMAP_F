@@ -1,15 +1,29 @@
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import homeimage from '../image/home.png'
 const NotificationSetting = () => {
     const [Time, setTime] = useState('08:00');
     const [frequency, setFrequency] = useState('daily');
     const [weeklyDay, setWeeklyDay] = useState('monday');
     const [monthlyDate, setMonthlyDate] = useState('1');
-
+    const navigate = useNavigate();
+ function homeClick(){
+      navigate("/")
+    }
 
     return (
         <>
             <h1>Notification Setting</h1>
-            
+            <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+            <div className="background"></div>
+            <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            textAlign: 'center',
+            width: '100%' 
+        }}>
             <p>Set the frequency for email notifications.</p>
             <div>
                 <input
@@ -47,7 +61,7 @@ const NotificationSetting = () => {
 
             {frequency === 'daily' && (
                 <div>
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -59,11 +73,12 @@ const NotificationSetting = () => {
 
             {frequency === 'weekly' && (
                 <div>
-                    <label htmlFor="weeklyDay">Choose day:</label>
+                    <label htmlFor="weeklyDay" style={{ marginRight: '10px' }}>Choose day:</label>
                     <select
                         id="weeklyDay"
                         value={weeklyDay}
                         onChange={(e) => setWeeklyDay(e.target.value)}
+                        style={{ marginRight: '10px' }}
                     >
                         <option value="monday">Monday</option>
                         <option value="tuesday">Tuesday</option>
@@ -74,7 +89,7 @@ const NotificationSetting = () => {
                         <option value="sunday">Sunday</option>
                     </select>
 
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -86,7 +101,7 @@ const NotificationSetting = () => {
 
             {frequency === 'monthly' && (
                 <div>
-                    <label htmlFor="monthlyDate">Choose date:</label>
+                    <label htmlFor="monthlyDate" style={{ marginRight: '10px' }}>Choose date:</label>
                     <input
                         type="number"
                         id="monthlyDate"
@@ -94,9 +109,10 @@ const NotificationSetting = () => {
                         max="31"
                         value={monthlyDate}
                         onChange={(e) => setMonthlyDate(e.target.value)}
+                        style={{ marginRight: '10px' }}
                     />
 
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -105,7 +121,8 @@ const NotificationSetting = () => {
                     />
                 </div>
             )}
-            <button>Save Settings</button>
+            <button style={{ marginTop: '20px' }}>Save Settings</button>
+            </div>
         </>
     );
 };

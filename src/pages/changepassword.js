@@ -39,7 +39,7 @@ const ChangePassword = () => {
         <div className="container">
             <div className="background"></div>
             <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
-            <h1>Change Password</h1>
+            <h1 style={{ textAlign: 'center' }}>Change Password</h1>
             <div className="inputs">
             <div className="input">
                 <input
@@ -57,7 +57,7 @@ const ChangePassword = () => {
                     onChange={(e) => setNewPassword(e.target.value)}
                 />
             </div>
-            <button onClick={handleChangePassword}>Change Password</button>
+            <button className='submit2' onClick={handleChangePassword}>Change Password</button>
             </div>
             {message && <div className="message">{message}</div>}
             <footer style={{textAlign:'center', padding:'12px', color:'#888'}}>
