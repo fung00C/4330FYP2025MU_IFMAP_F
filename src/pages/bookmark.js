@@ -323,7 +323,6 @@ const BookmarkPage = () => {
         <h1>Bookmark</h1>
         <div className="background"></div>
         <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
-        <button onClick={settingClick}>Notification Setting</button>
         <div className="card-container">
                 
                 {loading && <div className='card'>Loading...</div>}
@@ -339,10 +338,10 @@ const BookmarkPage = () => {
                         <div style={{height:'30%', display:'flex', width:'100%'}}>
                             <p style={{margin:'auto 0', fontSize:'35px'}}>{s}</p>
                             <button className="notificationbutton"
-                        onClick={(e) => {
-                        e.stopPropagation(); // Prevents the event from bubbling up
-                        notificationClick(s);
-                        }}
+                            onClick={(e) => {
+                            e.stopPropagation(); // Prevents the event from bubbling up
+                            settingClick();
+                            }}
 >
                         <img src={notified.includes(s) ? notification : unnotification}
                         alt={notified.includes(s) ? 'Cancel notification' : 'Notification'}
