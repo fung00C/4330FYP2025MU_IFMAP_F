@@ -66,6 +66,26 @@ async function handleDeleteAccount() {
         console.error('Error deleting account:', error);
         alert('An error occurred while trying to delete your account.'); // Error message to the user
     }
+    try {
+        const response = await fetch(`http://localhost:8000/bookmarks/delete_notification_setting?email=${email}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting notification setting:', error);
+    }
+    try {
+        const response = await fetch(`http://localhost:8000/bookmarks/remove_all?email=${email}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Error removing all bookmarks:', error);
+    }
 }
 
     return (
