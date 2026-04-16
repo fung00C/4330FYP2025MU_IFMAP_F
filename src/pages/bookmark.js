@@ -310,7 +310,7 @@ const BookmarkPage = () => {
         }
     };
 
-    const symbolClick = (symbol) => {
+    const handleStockClick = (symbol) => {
         navigate(`/detail/${symbol}`); // Redirect to stock detail page
     };
 

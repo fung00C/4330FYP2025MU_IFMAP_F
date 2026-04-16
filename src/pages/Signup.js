@@ -39,6 +39,16 @@ if (response.ok) {
     } catch(error){
       window.alert('An error occurred. Please try again later.');
     }
+    try {
+      const response = await fetch(`http://localhost:8000/bookmarks/add_notification_setting?email=${email}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Error adding notification setting:', error);
+    }
   };
 
   return (
