@@ -1,4 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import homeimage from '../image/home.png'
 
 const NotificationSetting = () => {
     const [Time, setTime] = useState('');
@@ -6,6 +8,10 @@ const NotificationSetting = () => {
     const [weeklyDay, setWeeklyDay] = useState('');
     const [monthlyDate, setMonthlyDate] = useState('');
     const email = localStorage.getItem('user_email');
+    const navigate = useNavigate();
+    function homeClick(){
+        navigate("/")
+    }
 
     useEffect(() => {
         fetch(`http://localhost:8000/bookmarks/get_notification_setting?email=${email}`)
@@ -77,9 +83,19 @@ const NotificationSetting = () => {
     return (
         <>
             <h1>Notification Setting</h1>
-            
-            <p>Set the frequency for email notifications.</p>
-            <div>
+            <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+            <div className="background"></div>
+            <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                textAlign: 'center',
+                width: '100%' 
+            }}>
+                <p>Set the frequency for email notifications.</p>
+            <div style={{ display: 'flex', flexDirection: 'column'}}>
+            <div style={{ alignSelf: 'flex-start' }}>
                 <input
                     type="radio"
                     id="daily"
@@ -90,7 +106,7 @@ const NotificationSetting = () => {
                 />
                 <label htmlFor="daily">Daily</label>
             </div>
-            <div>
+            <div style={{ alignSelf: 'flex-start' }}>
                 <input
                     type="radio"
                     id="weekly"
@@ -104,7 +120,7 @@ const NotificationSetting = () => {
                 />
                 <label htmlFor="weekly">Weekly</label>
             </div>
-            <div>
+            <div style={{ alignSelf: 'flex-start' }}>
                 <input
                     type="radio"
                     id="monthly"
@@ -118,10 +134,10 @@ const NotificationSetting = () => {
                 />
                 <label htmlFor="monthly">Monthly</label>
             </div>
-
+            </div>
             {frequency === 'daily' && (
                 <div>
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -133,11 +149,12 @@ const NotificationSetting = () => {
 
             {frequency === 'weekly' && (
                 <div>
-                    <label htmlFor="weeklyDay">Choose day:</label>
+                    <label htmlFor="weeklyDay" style={{ marginRight: '10px' }}>Choose day:</label>
                     <select
                         id="weeklyDay"
                         value={weeklyDay || "Monday"}
                         onChange={(e) => setWeeklyDay(e.target.value)}
+                        style={{ marginRight: '10px' }}
                     >
                         <option value="Monday">Monday</option>
                         <option value="Tuesday">Tuesday</option>
@@ -148,7 +165,7 @@ const NotificationSetting = () => {
                         <option value="Sunday">Sunday</option>
                     </select>
 
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -160,7 +177,7 @@ const NotificationSetting = () => {
 
             {frequency === 'monthly' && (
                 <div>
-                    <label htmlFor="monthlyDate">Choose date:</label>
+                    <label htmlFor="monthlyDate" style={{ marginRight: '10px' }}>Choose date:</label>
                     <input
                         type="number"
                         id="monthlyDate"
@@ -168,9 +185,10 @@ const NotificationSetting = () => {
                         max="31"
                         value={monthlyDate || 1}
                         onChange={(e) => setMonthlyDate(e.target.value)}
+                        style={{ marginRight: '10px' }}
                     />
 
-                    <label htmlFor="Time">Choose time:</label>
+                    <label htmlFor="Time" style={{ marginRight: '10px' }}>Choose time:</label>
                     <input
                         type="time"
                         id="Time"
@@ -179,7 +197,9 @@ const NotificationSetting = () => {
                     />
                 </div>
             )}
-            <button onClick={handleSaveSettings}>Save Settings</button>
+            <button style={{ marginTop: '20px' }} onClick={handleSaveSettings}>Save Settings</button>
+            </div>
+            
         </>
     );
 };
