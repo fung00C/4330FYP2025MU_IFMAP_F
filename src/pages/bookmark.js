@@ -323,6 +323,7 @@ const BookmarkPage = () => {
         <h1>Bookmark</h1>
         <div className="background"></div>
         <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
+        <button onClick={settingClick} style={{margin: '20px 20px'}}>Notification Setting</button>
         <div className="card-container">
                 
                 {loading && <div className='card'>Loading...</div>}
