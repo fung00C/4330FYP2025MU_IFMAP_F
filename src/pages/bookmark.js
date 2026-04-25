@@ -339,10 +339,10 @@ const BookmarkPage = () => {
                         <div style={{height:'30%', display:'flex', width:'100%'}}>
                             <p style={{margin:'auto 0', fontSize:'35px'}}>{s}</p>
                             <button className="notificationbutton"
-                        onClick={(e) => {
-                        e.stopPropagation(); // Prevents the event from bubbling up
-                        notificationClick(s);
-                        }}
+                            onClick={(e) => {
+                            e.stopPropagation(); // Prevents the event from bubbling up
+                            settingClick();
+                            }}
 >
                         <img src={notified.includes(s) ? notification : unnotification}
                         alt={notified.includes(s) ? 'Cancel notification' : 'Notification'}

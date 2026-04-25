@@ -39,7 +39,7 @@ const ChangePassword = () => {
         <div className="container">
             <div className="background"></div>
             <button className='homebutton' onClick={homeClick}><img src={homeimage} alt="" className='homeicon'/></button>
-            <h1>Change Password</h1>
+            <h1 style={{ textAlign: 'center' }}>Change Password</h1>
             <div className="inputs">
             <div className="input">
                 <input
