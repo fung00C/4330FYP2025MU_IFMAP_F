@@ -341,7 +341,7 @@ const BookmarkPage = () => {
                             <button className="notificationbutton"
                             onClick={(e) => {
                             e.stopPropagation(); // Prevents the event from bubbling up
-                            settingClick();
+                            notificationClick(s);
                             }}
 >
                         <img src={notified.includes(s) ? notification : unnotification}
